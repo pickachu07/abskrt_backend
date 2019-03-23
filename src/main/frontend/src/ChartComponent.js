@@ -4,6 +4,7 @@ import Chart from './Chart';
 import { getData } from "./utils";
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
+import stompClient from "./socketInstance";
 
 import { TypeChooser } from "react-stockcharts/lib/helper";
 
@@ -11,13 +12,13 @@ export default class ChartComponent extends React.Component {
 	constructor(props, context){
 		super(props,context)
 		this.dataArr = [];
-		this.socket = new SockJS("http://localhost:8080/gs-guide-websocket");
-    	this.stompClient = Stomp.over(this.socket);
+		//this.socket = new SockJS("http://localhost:8080/gs-guide-websocket");
+    	//this.stompClient = Stomp.over(this.socket);
 		
-    	this.stompClient.connect({}, frame => {
+    	stompClient.connect({}, frame => {
       		console.log(`connected, ${frame}!`);
-      		this.stompClient.subscribe('/topic/greetings', ndata => {
-				//console.log("----->:"+JSON.parse(ndata.body).data);
+      		stompClient.subscribe('/topic/ticker_stream', ndata => {
+				console.log("----->:"+JSON.parse(ndata.body).data);
 				//this.dataArr.push(ndata);
 				if(this.state.data!=null){
 					//console.log(this.state.data.push({date: "Tue Jan 05 2010 00:00:00 GMT+0530 (India Standard Time)", open: 25.627344939513726, high: 25.83502196495549, low: 25.452895407434543, close: 25.718722, volume : 400}));
