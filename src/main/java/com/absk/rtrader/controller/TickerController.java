@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import com.absk.rtrader.datafetcher.ScheduledDataFetcher;
 import com.absk.rtrader.model.Ticker;
 import com.absk.rtrader.repository.TickerRepository;
+import com.absk.rtrader.scheduler.ScheduledDataFetcher;
 
 @RestController
 public class TickerController {

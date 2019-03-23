@@ -6,10 +6,10 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
-import com.absk.rtrader.datafetcher.ScheduledDataFetcher;
 import com.absk.rtrader.model.OHLC;
 import com.absk.rtrader.model.Ticker;
 import com.absk.rtrader.model.TickerData;
+import com.absk.rtrader.scheduler.ScheduledDataFetcher;
 
 @Controller
 public class WebsocketController {
