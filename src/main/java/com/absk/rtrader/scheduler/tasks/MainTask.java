@@ -1,5 +1,7 @@
 package com.absk.rtrader.scheduler.tasks;
 
+import java.util.ArrayList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 
 import com.absk.rtrader.exchange.upstox.Util;
+import com.absk.rtrader.indicators.Renko;
 import com.absk.rtrader.model.Ticker;
 
 @Configurable
@@ -21,6 +24,9 @@ public class MainTask implements Runnable{
 	
 	@Autowired
     private SimpMessagingTemplate template;
+	
+	@Autowired
+	private Renko r;
 	
 	private static final Logger log = LoggerFactory.getLogger(MainTask.class);
 	
@@ -37,13 +43,19 @@ public class MainTask implements Runnable{
 	}
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-		//Util util = new Util();
-		//SimpMessagingTemplate template = new Sim
 		log.info("Main Task: ticker:"+this.tickerName+": brick size:"+this.brickSize);
 		Ticker tick = util.getFeed();
-	    log.info("The tick is now {}", tick);
-	    template.convertAndSend("/topic/ticker_stream", tick);
+		//calculate renko
+		Renko rInstance = r.getInstance();
+		//rInstance.setBrickSize(this.brickSize);
+		ArrayList<Ticker> tickArr = rInstance.drawRenko(tick,this.brickSize);
+		//send renko brick to /topic/renko_stream
+		for(int i=0;i<tickArr.size();i++){
+			log.info("The tick is now {}", tick);
+		    template.convertAndSend("/topic/ticker_stream", tickArr.get(i));
+		}
+	    //log.info("The tick is now {}", tick);
+	    //template.convertAndSend("/topic/ticker_stream", tick);
 		
 	}
 

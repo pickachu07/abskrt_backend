@@ -18,7 +18,7 @@ export default class ChartComponent extends React.Component {
     	stompClient.connect({}, frame => {
       		console.log(`connected, ${frame}!`);
       		stompClient.subscribe('/topic/ticker_stream', ndata => {
-				console.log("----->:"+JSON.parse(ndata.body).data);
+				//console.log("----->:"+JSON.parse(ndata.body).data);
 				//this.dataArr.push(ndata);
 				if(this.state.data!=null){
 					//console.log(this.state.data.push({date: "Tue Jan 05 2010 00:00:00 GMT+0530 (India Standard Time)", open: 25.627344939513726, high: 25.83502196495549, low: 25.452895407434543, close: 25.718722, volume : 400}));
@@ -40,7 +40,7 @@ export default class ChartComponent extends React.Component {
 	
 	componentDidMount() {
 		getData().then(data => {
-			data = data.slice(1,3);
+			data = data.slice(0,2);
 			this.setState({ data })
 		})
 	}

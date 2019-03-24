@@ -38,6 +38,30 @@ class CandleStickChartForDiscontinuousIntraDay extends React.Component {
 			displayXAccessor,
 		} = xScaleProvider(initialData);
 
+		//
+		const height = 400;
+		//const width = 800;
+
+		var margin = {left: 70, right: 70, top:20, bottom: 30};
+		var gridHeight = height - margin.top - margin.bottom;
+		var gridWidth = width - margin.left - margin.right;
+
+		var showGrid = true;
+		var yGrid = showGrid ? { 
+			innerTickSize: -1 * gridWidth,
+			tickStrokeDasharray: 'Solid',
+			tickStrokeOpacity: 0.2,
+			tickStrokeWidth: 1
+		} : {};
+		var xGrid = showGrid ? { 
+			innerTickSize: -1 * gridHeight,
+			tickStrokeDasharray: 'Solid',
+			tickStrokeOpacity: 0.2,
+			tickStrokeWidth: 1
+		} : {};
+
+
+        //
 		const start = xAccessor(last(data));
 		const end = xAccessor(data[Math.max(0, data.length - 150)]);
 		const xExtents = [start, end];
@@ -51,6 +75,8 @@ class CandleStickChartForDiscontinuousIntraDay extends React.Component {
 				seriesName="MSFT"
 				data={data}
 				xScale={xScale}
+				panEvent={true}
+    			zoomEvent={true}
 				xAccessor={xAccessor}
 				displayXAccessor={displayXAccessor}
 				xExtents={xExtents}
@@ -77,8 +103,8 @@ class CandleStickChartForDiscontinuousIntraDay extends React.Component {
 					yExtents={[d => [d.high, d.low]]}
 					padding={{ top: 40, bottom: 20 }}
 				>
-					<XAxis axisAt="bottom" orient="bottom"/>
-					<YAxis axisAt="right" orient="right" ticks={5} />
+					<XAxis axisAt="bottom" orient="bottom" {...xGrid}/>
+					<YAxis axisAt="right" orient="right" ticks={5} {...yGrid}/>
 
 					<MouseCoordinateX
 						rectWidth={60}

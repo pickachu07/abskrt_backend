@@ -1,6 +1,7 @@
 package com.absk.rtrader.model;
 
 public class TickerData {
+	
 	private double open;
 	private double high;
 	private double low;
@@ -12,6 +13,22 @@ public class TickerData {
 	private double yearly_high;
 	private double yearly_low;
 	
+	public TickerData(double open, double high, double low, double close, double volume, Long timestamp,
+			String exchange, String symbol, double yearly_high, double yearly_low) {
+		this.open = open;
+		this.high = high;
+		this.low = low;
+		this.close = close;
+		this.volume = volume;
+		this.timestamp = timestamp;
+		this.exchange = exchange;
+		this.symbol = symbol;
+		this.yearly_high = yearly_high;
+		this.yearly_low = yearly_low;
+	}
+	public TickerData() {
+		
+	}
 	
 	@Override
 	public String toString() {

@@ -5,7 +5,7 @@ export default class RealtimeContainer extends React.Component {
   
   constructor(){
     super();
-    this.state = {ticker: 'SBIN', brick_size : 10, streamingStarted : false};
+    this.state = {ticker: 'SBIN', brick_size : 1000, streamingStarted : false};
 
     this.handleTChange = this.handleTChange.bind(this);
     this.handleBSChange = this.handleBSChange.bind(this);
