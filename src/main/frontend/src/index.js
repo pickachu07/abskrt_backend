@@ -1,10 +1,10 @@
 import React from 'react';
 import { render } from 'react-dom';
-import RealtimeContainer from "./RealtimeContainer";
-
+import RealtimeContainer from "./realtime_tab/RealtimeContainer";
+import Dashboard from "./dashboard/Dashboard";
 
 render(
-	<RealtimeContainer />,
+	<Dashboard/>,
 	document.getElementById("root")
 );
 
