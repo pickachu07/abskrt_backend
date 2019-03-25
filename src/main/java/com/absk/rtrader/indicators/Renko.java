@@ -62,7 +62,7 @@ public class Renko {
 			currRenOpen = cOpen;
 			ro.add(this.bCount, currRenOpen);
 		}
-		this.cur = cClose - cOpen;
+		this.cur = cClose - currRenOpen;
 		this.buf += this.cur;
 		
 		if( Math.abs(buf) >= this.brickSize && buf > 0) {//positive renko brick
