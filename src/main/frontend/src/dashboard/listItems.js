@@ -9,15 +9,18 @@ import BuildIcon from '@material-ui/icons/Build';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import SettingsIcon from '@material-ui/icons/Settings';
 import AssignmentIcon from '@material-ui/icons/Assignment';
+import {Link} from 'react-router-dom';
 
 export const mainListItems = (
   <div>
+    <Link to="/">
     <ListItem button>
       <ListItemIcon>
         <TimerIcon />
       </ListItemIcon>
       <ListItemText primary="Realtime" />
     </ListItem>
+    </Link>
     <ListItem button>
       <ListItemIcon>
         <HistoryIcon />
@@ -36,12 +39,14 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary="Optimizations" />
     </ListItem>
+    <Link to="/settings">
     <ListItem button>
       <ListItemIcon>
         <SettingsIcon />
       </ListItemIcon>
       <ListItemText primary="Settings" />
     </ListItem>
+    </Link>
   </div>
 );
 
