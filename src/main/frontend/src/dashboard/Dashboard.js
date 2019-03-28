@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Drawer from '@material-ui/core/Drawer';
-import Paper from '@material-ui/core/Paper';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
@@ -16,10 +15,9 @@ import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import { mainListItems, secondaryListItems } from './listItems';
-import SimpleLineChart from './SimpleLineChart';
-import SimpleTable from './SimpleTable';
-import RealtimeContainer from '../realtime_tab/RealtimeContainer';
-
+import { Route, Link, BrowserRouter as Router,Switch } from 'react-router-dom'
+import RealtimeTab from '../realtime_tab/RealtimeTab';
+import SettingsTab from '../settings_tab/settingsTab';
 const drawerWidth = 240;
 
 const styles = theme => ({
@@ -82,18 +80,6 @@ const styles = theme => ({
     },
   },
   appBarSpacer: theme.mixins.toolbar,
-  content: {
-    flexGrow: 1,
-    padding: theme.spacing.unit * 3,
-    height: '100vh',
-    overflow: 'auto',
-  },
-  chartContainer: {
-    marginLeft: -2,
-  },
-  tableContainer: {
-    height: 320,
-  },
   h5: {
     marginBottom: theme.spacing.unit * 2,
   },
@@ -101,7 +87,7 @@ const styles = theme => ({
 
 class Dashboard extends React.Component {
   state = {
-    open: true,
+    open: false,
   };
 
   handleDrawerOpen = () => {
@@ -117,12 +103,15 @@ class Dashboard extends React.Component {
 
     return (
       <div className={classes.root}>
+      <Router>
         <CssBaseline />
         <AppBar
           position="absolute"
           className={classNames(classes.appBar, this.state.open && classes.appBarShift)}
         >
+        
           <Toolbar disableGutters={!this.state.open} className={classes.toolbar}>
+          
             <IconButton
               color="inherit"
               aria-label="Open drawer"
@@ -158,32 +147,23 @@ class Dashboard extends React.Component {
           open={this.state.open}
         >
           <div className={classes.toolbarIcon}>
+          <Link to="/">
             <IconButton onClick={this.handleDrawerClose}>
               <ChevronLeftIcon />
             </IconButton>
+          </Link>
           </div>
+         
           <Divider />
           <List>{mainListItems}</List>
           <Divider />
           <List>{secondaryListItems}</List>
         </Drawer>
-        <main className={classes.content}>
-          <div className={classes.appBarSpacer} />
-          {/* <Typography variant="h4" gutterBottom component="h2">
-            Chart
-          </Typography> */}
-          <div className={classes.chartContainer}>
-            <Paper className={classes.root} elevation={1}>
-                <RealtimeContainer />
-            </Paper>
-          </div>
-          <Typography variant="h4" gutterBottom component="h4">
-            Actions
-          </Typography>
-          <div className={classes.tableContainer}>
-            <SimpleTable />
-          </div>
-        </main>
+        <Switch className={classes.contentContainer}>
+            <Route exact path="/" component={RealtimeTab} />
+            <Route exact path="/settings" component={SettingsTab} />
+        </Switch>
+        </Router>
       </div>
     );
   }
