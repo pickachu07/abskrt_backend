@@ -30,7 +30,7 @@ public class MainTask implements Runnable{
 	
 	private static final Logger log = LoggerFactory.getLogger(MainTask.class);
 	
-	int brickSize;
+	double brickSize;
 	String tickerName;
 	
 	public MainTask(int brickSize, String tickerName){

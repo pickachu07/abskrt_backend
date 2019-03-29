@@ -1,22 +1,14 @@
 import React from 'react';
-import { render } from 'react-dom';
 import Chart from './Chart';
 import { getData } from "./utils";
-import SockJS from 'sockjs-client';
-import Stomp from 'stompjs';
-import stompClient from "./socketInstance";
-
-import { TypeChooser } from "react-stockcharts/lib/helper";
 
 export default class ChartComponent extends React.Component {
 	constructor(props, context){
 		super(props,context)
-		this.dataArr = [];
 		//this.socket = new SockJS("http://localhost:8080/gs-guide-websocket");
     	//this.stompClient = Stomp.over(this.socket);
-		
-    	stompClient.connect({}, frame => {
-      		console.log(`connected, ${frame}!`);
+    	/*stompClient.connect({}, frame => {
+      		//console.log(`connected, ${frame}!`);
       		stompClient.subscribe('/topic/ticker_stream', ndata => {
 				//console.log("----->:"+JSON.parse(ndata.body).data);
 				//this.dataArr.push(ndata);
@@ -28,13 +20,13 @@ export default class ChartComponent extends React.Component {
 					var lo = JSON.parse(ndata.body).data.low;
 					var cl = JSON.parse(ndata.body).data.close;
 					var vol = JSON.parse(ndata.body).data.volume;
-					var newArr = {date: nd, open: op, high: hi, low: lo, close: cl, volume : 400};
+					var newArr = {date: nd, open: op, high: hi, low: lo, close: cl, volume : vol};
 					this.setState({data : [...this.state.data, newArr]});
 					console.log(this.state);
 				}
 				
       		});
-		});
+		});*/
 	}
 	
 	

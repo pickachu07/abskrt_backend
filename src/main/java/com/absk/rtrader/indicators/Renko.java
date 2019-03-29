@@ -13,7 +13,7 @@ import com.absk.rtrader.model.TickerData;
 @Scope(value = "singleton")
 public class Renko {
 
-	private int brickSize;
+	private double brickSize;
 	private Renko instance;
 	
 	private ArrayList<Double> ro;
@@ -45,11 +45,11 @@ public class Renko {
 	public void setBrickSize(int bs) {
 		this.brickSize = bs;
 	}
-	public int getBrickSize() {
+	public double getBrickSize() {
 		return this.brickSize;
 	}
 	
-	public ArrayList<Ticker> drawRenko(Ticker tick,int bs) {
+	public ArrayList<Ticker> drawRenko(Ticker tick,double bs) {
 		this.brickSize = bs;
 		TickerData data = tick.getData();
 		double cOpen = data.getOpen();
