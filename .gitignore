@@ -1,2 +1,8 @@
 target/
 src/main/frontend/node_modules
+.settings/org.springframework.ide.eclipse.prefs
+.settings/org.eclipse.m2e.core.prefs
+.settings/org.eclipse.jdt.core.prefs
+.settings/org.eclipse.core.resources.prefs
+.project
+.classpath
