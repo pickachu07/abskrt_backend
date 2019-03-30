@@ -54,7 +54,6 @@ class RealtimeTab extends React.Component {
           </div>
         </main>
       </div>
-    )
-  }
+    )}
 }
 export default withStyles(styles)(RealtimeTab)

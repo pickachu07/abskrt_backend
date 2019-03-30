@@ -1,6 +1,5 @@
 import React from 'react';
 import ChartComponent from "./ChartComponent";
-import StompClient from './socketInstance';
 import Avatar from '@material-ui/core/Avatar';
 import Chip from '@material-ui/core/Chip';
 import FaceIcon from '@material-ui/icons/Face';
@@ -15,13 +14,15 @@ class RealtimeContainer extends React.Component {
   
   constructor(){
     super();
-    this.state = {ticker: 'SBIN', brick_size : 1000, streamingStarted : false,connected:false};
+    this.state = {ticker: 'SBIN', brick_size : 1000, streamingStarted : false,connected:false,data:[]};
 
     this.handleTChange = this.handleTChange.bind(this);
     this.handleBSChange = this.handleBSChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleStop = this.handleStop.bind(this);
-    this.SocketConnect();
+    this.stompClient = null;
+    this.getStompClient = this.getStompClient.bind(this);
+    this.SocketConnect = this.SocketConnect.bind(this);
   }
 
   handleTChange(event) {
@@ -33,29 +34,33 @@ class RealtimeContainer extends React.Component {
   }
 
   handleSubmit(event) {
-    StompClient.send("/app/start_streaming", {}, JSON.stringify({'brick_size' : this.state.brick_size,'ticker_name': this.state.ticker}))
+    this.getStompClient().send("/app/start_streaming", {}, JSON.stringify({'brick_size' : this.state.brick_size,'ticker_name': this.state.ticker}))
     this.setState({streamingStarted: true});
     console.log('A ticker was submitted: ' + this.state.ticker +": BS: "+this.state.brick_size);
     event.preventDefault();
   }
   handleStop(event){
-    StompClient.send("/app/stop_streaming", {}, {});
+    this.getStompClient().send("/app/stop_streaming", {}, {});
     this.setState({streamingStarted: false});
     console.log('Stop Streaming pressed');
     event.preventDefault();
   }
 
-  SocketConnect = () =>{
-    if(this.state.connected == true)return;
-    let socket = new SockJS("http://localhost:8080/gs-guide-websocket");
-    let stompClient;
-    stompClient= Stomp.over(socket);
+  getStompClient = () =>{
+    if(this.stompClient== null){
+      let socket = new SockJS("http://localhost:8080/gs-guide-websocket");
+      this.stompClient= Stomp.over(socket);
+    }
+    return this.stompClient;
+  }
 
-    stompClient.connect({}, frame => {
+  SocketConnect = () =>{
+    if(this.state.connected === true)return;
+    let stompClientInstance = this.getStompClient();
+    stompClientInstance.connect({}, frame => {
       this.setState({connected: true});
-      //console.log(`connected, ${frame}!`);
-      stompClient.subscribe('/topic/ticker_stream', ndata => {
-        //console.log("----->:"+JSON.parse(ndata.body).data);
+      
+      stompClientInstance.subscribe('/topic/ticker_stream', ndata => {
         
         if(this.state.data!=null){
           var nd =new Date(JSON.parse(ndata.body).data.timestamp)
@@ -66,11 +71,12 @@ class RealtimeContainer extends React.Component {
           var vol = JSON.parse(ndata.body).data.volume;
           var newArr = {date: nd, open: op, high: hi, low: lo, close: cl, volume : vol};
           this.setState({data : [...this.state.data, newArr]});
+          //console.log("****stateData:"+this.state.data);
         }
     
       });
 });
-stompClient.ws.onclose = () =>{
+stompClientInstance.ws.onclose = () =>{
   this.setState({connected: false});
 }
 
@@ -105,7 +111,7 @@ stompClient.ws.onclose = () =>{
          </div>
         </div>
         <div className="row">
-          <ChartComponent />
+          <ChartComponent chartData={this.state.data}/>
         </div>
       </div>
       );

@@ -4,29 +4,8 @@ import { getData } from "./utils";
 
 export default class ChartComponent extends React.Component {
 	constructor(props, context){
-		super(props,context)
-		//this.socket = new SockJS("http://localhost:8080/gs-guide-websocket");
-    	//this.stompClient = Stomp.over(this.socket);
-    	/*stompClient.connect({}, frame => {
-      		//console.log(`connected, ${frame}!`);
-      		stompClient.subscribe('/topic/ticker_stream', ndata => {
-				//console.log("----->:"+JSON.parse(ndata.body).data);
-				//this.dataArr.push(ndata);
-				if(this.state.data!=null){
-					//console.log(this.state.data.push({date: "Tue Jan 05 2010 00:00:00 GMT+0530 (India Standard Time)", open: 25.627344939513726, high: 25.83502196495549, low: 25.452895407434543, close: 25.718722, volume : 400}));
-					var nd =new Date(JSON.parse(ndata.body).data.timestamp)
-					var op = JSON.parse(ndata.body).data.open;
-					var hi = JSON.parse(ndata.body).data.high;
-					var lo = JSON.parse(ndata.body).data.low;
-					var cl = JSON.parse(ndata.body).data.close;
-					var vol = JSON.parse(ndata.body).data.volume;
-					var newArr = {date: nd, open: op, high: hi, low: lo, close: cl, volume : vol};
-					this.setState({data : [...this.state.data, newArr]});
-					console.log(this.state);
-				}
-				
-      		});
-		});*/
+		super(props,context);
+		
 	}
 	
 	
@@ -36,11 +15,19 @@ export default class ChartComponent extends React.Component {
 			this.setState({ data })
 		})
 	}
+	
+	componentWillReceiveProps(nextProps) {
+		this.setState({data : nextProps.chartData});
+	} 
+
+
 	render() {
-		//console.log(this.state.data);
+		//console.log("*****************props:"+this.props.chartData);
 		
 		if (this.state == null) {
 			return <div>Loading...</div>
+		}else if(this.state.data.length <= 3){
+			return <div>Not enough data...</div>
 		}
 		return (
 			
