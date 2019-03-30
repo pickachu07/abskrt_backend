@@ -18,6 +18,7 @@ import { mainListItems, secondaryListItems } from './listItems';
 import { Route, Link, BrowserRouter as Router,Switch } from 'react-router-dom'
 import RealtimeTab from '../realtime_tab/RealtimeTab';
 import SettingsTab from '../settings_tab/settingsTab';
+import HistoricalTab from '../historical_tab/HistoricalTab';
 const drawerWidth = 240;
 
 const styles = theme => ({
@@ -162,6 +163,7 @@ class Dashboard extends React.Component {
         <Switch className={classes.contentContainer}>
             <Route exact path="/" component={RealtimeTab} />
             <Route exact path="/settings" component={SettingsTab} />
+            <Route exact path="/historical" component={HistoricalTab} />
         </Switch>
         </Router>
       </div>

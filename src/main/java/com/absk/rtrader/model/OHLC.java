@@ -17,6 +17,15 @@ public class OHLC {
 		this.volume = volume;
 		this.timestamp = timestamp;
 	}
+	public OHLC(String historicalOHLC) {
+		String[] data = historicalOHLC.split(",");
+		this.timestamp = Long.parseLong(data[0]);
+		this.open = Double.parseDouble(data[1]);
+		this.high = Double.parseDouble(data[2]);
+		this.low = Double.parseDouble(data[3]);
+		this.close = Double.parseDouble(data[4]);
+		this.volume = Double.parseDouble(data[5]);
+	}
 	
 	public double getOpen() {
 		return open;
