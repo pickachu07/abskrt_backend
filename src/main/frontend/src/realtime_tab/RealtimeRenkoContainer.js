@@ -10,7 +10,7 @@ const styles = theme =>({
   
 });
 
-class RealtimeContainer extends React.Component {
+class RealtimeRenkoContainer extends React.Component {
   
   constructor(){
     super();
@@ -119,4 +119,4 @@ stompClientInstance.ws.onclose = () =>{
   }
 
 
-  export default withStyles(styles)(RealtimeContainer)
+  export default withStyles(styles)(RealtimeRenkoContainer)
