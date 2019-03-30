@@ -3,6 +3,8 @@ import SimpleTable from './SimpleTable';
 import RealtimeRenkoContainer from './RealtimeRenkoContainer';
 import OHLCChartContainer from './OHLCChartContainer';
 import Paper from '@material-ui/core/Paper';
+import Switch from '@material-ui/core/Switch';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -31,8 +33,17 @@ const styles = theme => ({
 
 
 class RealtimeTab extends React.Component {
-  
-  
+  constructor(){
+    super();
+    this.state = {ohlc_visible:false}
+  };
+  showOHLC = () =>{
+    if(this.state.ohlc_visible === false){
+      this.setState({ohlc_visible : true});
+    }else{
+      this.setState({ohlc_visible : false});
+    }
+  };
   render() {
     const { classes } = this.props;
     return (
@@ -47,12 +58,27 @@ class RealtimeTab extends React.Component {
                 <RealtimeRenkoContainer />
             </Paper>
           </div>
-          <div className={classes.chartContainer}>
-            <Paper elevation={1}>
-                <OHLCChartContainer />
-            </Paper>
-          </div>
-          <Typography variant="h4" gutterBottom component="h4">
+          {/* <Typography variant="h6" gutterBottom component="h6">
+            OHLC
+          </Typography> */}
+          <FormControlLabel
+          control={
+            <Switch
+              checked={this.state.ohlc_visible}
+              onChange={this.showOHLC}
+              value="true"
+              color="primary"
+            />
+          }
+          label="Show OHLC"
+        />{
+          this.state.ohlc_visible&&<div className={classes.chartContainer}>
+          <Paper elevation={1}>
+              <OHLCChartContainer />
+          </Paper>
+        </div>
+        }
+          <Typography variant="h6" gutterBottom component="h6">
             Actions
           </Typography>
           <div className={classes.tableContainer}>
