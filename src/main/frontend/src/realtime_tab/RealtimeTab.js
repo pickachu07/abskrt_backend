@@ -1,6 +1,7 @@
 import React from 'react'
 import SimpleTable from './SimpleTable';
 import RealtimeRenkoContainer from './RealtimeRenkoContainer';
+import OHLCChartContainer from './OHLCChartContainer';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
@@ -44,6 +45,11 @@ class RealtimeTab extends React.Component {
           <div className={classes.chartContainer}>
             <Paper elevation={1}>
                 <RealtimeRenkoContainer />
+            </Paper>
+          </div>
+          <div className={classes.chartContainer}>
+            <Paper elevation={1}>
+                <OHLCChartContainer />
             </Paper>
           </div>
           <Typography variant="h4" gutterBottom component="h4">

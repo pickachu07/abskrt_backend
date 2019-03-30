@@ -49,6 +49,10 @@ public class MainTask implements Runnable{
 		Renko rInstance = r.getInstance();
 		//rInstance.setBrickSize(this.brickSize);
 		ArrayList<Ticker> tickArr = rInstance.drawRenko(tick,this.brickSize);
+		
+		//send ohlc to ohlc_stream
+		template.convertAndSend("/topic/ohlc_stream", tick);
+		
 		//send renko brick to /topic/renko_stream
 		for(int i=0;i<tickArr.size();i++){
 			log.info("The tick is now {}", tick);
