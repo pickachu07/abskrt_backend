@@ -44,10 +44,11 @@ public class MainTask implements Runnable{
 	@Override
 	public void run() {
 		log.info("Main Task: ticker:"+this.tickerName+": brick size:"+this.brickSize);
+		
 		Ticker tick = util.getFeed();
+		
 		//calculate renko
 		Renko rInstance = r.getInstance();
-		//rInstance.setBrickSize(this.brickSize);
 		ArrayList<Ticker> tickArr = rInstance.drawRenko(tick,this.brickSize);
 		
 		//send ohlc to ohlc_stream
@@ -58,8 +59,7 @@ public class MainTask implements Runnable{
 			log.info("The tick is now {}", tick);
 		    template.convertAndSend("/topic/ticker_stream", tickArr.get(i));
 		}
-	    //log.info("The tick is now {}", tick);
-	    //template.convertAndSend("/topic/ticker_stream", tick);
+	    
 		
 	}
 

@@ -6,6 +6,7 @@ import java.util.Date;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.absk.rtrader.model.OHLC;
 import com.absk.rtrader.model.Ticker;
 import com.absk.rtrader.model.TickerData;
 
@@ -47,6 +48,10 @@ public class Renko {
 	}
 	public double getBrickSize() {
 		return this.brickSize;
+	}
+	//draw complete renko formation at once
+	public OHLC[] drawRenko(OHLC[] data, double bs) {
+		return null;
 	}
 	
 	public ArrayList<Ticker> drawRenko(Ticker tick,double bs) {

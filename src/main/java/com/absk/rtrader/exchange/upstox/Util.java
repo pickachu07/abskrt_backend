@@ -77,7 +77,7 @@ public class Util {
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("x-api-key", "2DgWnzxnRk1TGBQZgdLH37lRcCtCLWE72oWsD9Tn");
-		headers.setBearerAuth("061e35025bdeb27bd9cc0afc8e3de060d1798372");
+		headers.setBearerAuth("da3a89875b50028d1557bacb799ab3749c3777c4");
 		HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
         ResponseEntity<HistoricalAPIResponse> response = restTemplate.exchange("https://api.upstox.com/historical/nse_eq/AXISBANK/1",HttpMethod.GET,entity, HistoricalAPIResponse.class);//https://api.upstox.com/live/feed/now/nse_eq/SBIN/fullhttp://localhost:3000
         HistoricalAPIResponse apiResponse = (HistoricalAPIResponse) response.getBody();

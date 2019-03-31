@@ -86,12 +86,12 @@ class HistoricalTab extends React.Component {
   parseData = (results) => {
     let output = [];  
     for(let i = 0;i<results.length;i++){
-        var nd =new Date(results[i].timestamp)
-          var op = results[i].open;
-          var hi = results[i].high;
-          var lo = results[i].low;
-          var cl = results[i].close;
-          var vol = results[i].volume;
+        var nd =new Date(results[i].data.timestamp)
+          var op = results[i].data.open;
+          var hi = results[i].data.high;
+          var lo = results[i].data.low;
+          var cl = results[i].data.close;
+          var vol = results[i].data.volume;
           var newArr = {date: nd, open: op, high: hi, low: lo, close: cl, volume : vol};
           output[i]= newArr;
     }
