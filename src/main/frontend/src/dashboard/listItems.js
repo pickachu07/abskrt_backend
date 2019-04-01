@@ -21,12 +21,14 @@ export const mainListItems = (
       <ListItemText primary="Realtime" />
     </ListItem>
     </Link>
+    <Link to="/historical">
     <ListItem button>
       <ListItemIcon>
         <HistoryIcon />
       </ListItemIcon>
       <ListItemText primary="Historical" />
     </ListItem>
+    </Link>
     <ListItem button>
       <ListItemIcon>
         <BarChartIcon />

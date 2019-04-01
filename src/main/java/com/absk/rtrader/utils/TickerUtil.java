@@ -9,7 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.absk.rtrader.model.OHLC;
 import com.absk.rtrader.model.Ticker;
+import com.absk.rtrader.model.TickerData;
 import com.absk.rtrader.repository.TickerRepository;
 
 @Component
@@ -36,6 +38,16 @@ public class TickerUtil {
 		tickerRepo.save(ticker);
 		log.debug("Saved Ticker: ", ticker.toString());
 		
+	}
+	
+	public OHLC convertToOHLC(Ticker tick) {
+		return new OHLC(tick.getData().getOpen(),tick.getData().getHigh(),tick.getData().getLow(),tick.getData().getClose(),tick.getData().getVolume(), tick.getData().getTimestamp());
+	}
+	
+	public Ticker convertToTicker(OHLC candle) {	
+		TickerData data= new TickerData(candle.getOpen(), candle.getHigh(), candle.getLow(), candle.getClose(), candle.getVolume(), candle.getTimestamp(), null, null, 0, 0);
+		Ticker tick = new Ticker("Converted from OHLC", data, new Date(candle.getTimestamp()));
+		return tick;
 	}
 	
 	
