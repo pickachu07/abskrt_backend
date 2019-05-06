@@ -54,7 +54,7 @@ public class HistoricalWebsocketController {
     	OHLC[] data = upstoxUtil.getHistoricalOHLC();
     	TradingSession ts = new TradingSession();
 		Renko rInstance = r.getInstance();
-		double brickSize = 10;
+		double brickSize = 2;
 		ArrayList<Ticker> tickArr = null;
     	for(int i=0;i<data.length;i++) {
     		Thread.sleep(1000);
@@ -63,6 +63,7 @@ public class HistoricalWebsocketController {
     		ts.processData(tickArr);
     		template.convertAndSend("/topic/historical_data_stream", tickArr);
     		template.convertAndSend("/topic/historical_trans_stream", ts.getTransactions());
+    		template.convertAndSend("/topic/historical_calculated_data_stream", ts.calculateProfit());
     		tickArr = null;
     		
     	}

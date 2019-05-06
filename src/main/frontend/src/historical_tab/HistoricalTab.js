@@ -26,7 +26,7 @@ const styles = theme => ({
   },
   tableContainer: {
     width: '100%',
-    height: '320px'
+    height: '420px'
   },
   textField: {
     marginLeft: theme.spacing.unit,
@@ -61,7 +61,7 @@ const styles = theme => ({
 class HistoricalTab extends React.Component {
   constructor(){
       super()
-      this.state = {brick_size:10,ticker_name:"AXISBANK",start_date:"2017-05-24",end_date:"2017-05-29",data:[],trans:[]};
+      this.state = {brick_size:10,ticker_name:"AXISBANK",start_date:"2017-05-24",end_date:"2017-05-29",data:[],trans:[],profit:0};
       this.handleBSChange = this.handleBSChange.bind(this);
       this.handleDateChange = this.handleDateChange.bind(this);
       this.handleTNChange = this.handleTNChange.bind(this);
@@ -84,6 +84,14 @@ SocketConnect = () =>{
     stompClientInstance.connect({}, frame => {
       this.setState({connected: true});
       
+
+      stompClientInstance.subscribe('/topic/historical_calculated_data_stream', cdata => {
+        let cProfit = JSON.parse(cdata.body);
+        this.setState({profit:cProfit})
+        console.log("profit:"+cProfit);
+      });
+
+
       stompClientInstance.subscribe('/topic/historical_trans_stream', transactions => {
         let results = JSON.parse(transactions.body);
         let output = [];  
@@ -153,7 +161,7 @@ SocketConnect = () =>{
         <div className={classes.appBarSpacer} />
         <main className={classes.content}>
         <Typography variant="h6" gutterBottom component="h6">
-            Historical Data
+            Historical Data | Profit: {this.state.profit}
           </Typography>
           <Grid container spacing={8}>
             <Grid item xs={12}>

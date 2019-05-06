@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,9 @@ public class TradingSession {
 	int last_signal_type;
 	ArrayList<Ticker> rb;
 	int buffer_signal_type;
+	int lastCalculatedTrade;
+	double tempProfit;
+	
 	
 	public TradingSession(String tickerName,int sessionType,float brickSize) {
 		this.tickerName = tickerName;
@@ -50,6 +54,8 @@ public class TradingSession {
 		rb = new ArrayList<Ticker>();
 		this.last_signal_type = -1;
 		this.buffer_signal_type = -1;
+		this.lastCalculatedTrade =0;
+		this.tempProfit = 0.0;
 	}
 	public TradingSession(){
 		this.brickSize = 10;//make it configurable
@@ -58,6 +64,8 @@ public class TradingSession {
 		rb = new ArrayList<Ticker>();
 		this.last_signal_type = -1;
 		this.buffer_signal_type = -1;
+		this.lastCalculatedTrade =0;
+		this.tempProfit = 0.0;
 	}
 	
 	void registerBuyOpt(Double price,Date date) {
@@ -130,7 +138,7 @@ public class TradingSession {
 					if(this.last_signal_type != 1) { //last signal not buy(1) --> last signal sell(0) or null(-1)
 						//buy Signal
 						registerBuyOpt(ohlc.get(brickCount-1).getData().getClose(),new Date(ohlc.get(brickCount-1).getData().getTimestamp()));
-						System.out.println("Signal:Buy :: last signal is not buy at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+":: Single Brick generated"+brickCount +" at price:"+ohlc.get(0).getData().getClose());
+						System.out.println("Signal:Buy :: last signal is not buy at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+":: Single Brick generated"+brickCount +" at price:"+ohlc.get(brickCount-1).getData().getClose());
 						
 						this.last_signal_type = 1;//set last signal as sell(0)		
 					}	
@@ -145,7 +153,7 @@ public class TradingSession {
 						//sell Signal
 						registerSellOpt(ohlc.get(brickCount-1).getData().getClose(),new Date(ohlc.get(brickCount-1).getData().getTimestamp()));
 						
-						System.out.println("Signal:Sell :: last signal is not sell at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+" :: Single Brick generated"+brickCount +" at price:"+ohlc.get(0).getData().getClose());
+						System.out.println("Signal:Sell :: last signal is not sell at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+" :: Single Brick generated"+brickCount +" at price:"+ohlc.get(brickCount-1).getData().getClose());
 						this.last_signal_type = 0;//set last signal as sell(0)		
 					}	
 					this.buffer_signal_type = -1;//reset buffer
@@ -160,14 +168,14 @@ public class TradingSession {
 				if(this.last_signal_type != 1) { //last signal not buy(1) --> last signal sell(0) or null(-1)
 					//Buy Signal
 					registerBuyOpt(ohlc.get(brickCount-1).getData().getClose(),new Date(ohlc.get(brickCount-1).getData().getTimestamp()));
-					System.out.println("Signal:Buy at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+":: More than 1 Brick generated"+brickCount +" at price"+ohlc.get(0).getData().getClose());
+					System.out.println("Signal:Buy at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+":: More than 1 Brick generated"+brickCount +" at price"+ohlc.get(brickCount-1).getData().getClose());
 					this.last_signal_type = 1;//set last signal as Buy(1)
 				}
 			}else {//negetive brick
 				if(this.last_signal_type != 0) { //last signal not sell(0) last signal buy(1) or null(-1)
 					//Sell Signal
 					registerSellOpt(ohlc.get(brickCount-1).getData().getClose(),new Date(ohlc.get(brickCount-1).getData().getTimestamp()));
-					System.out.println("Signal:Sell at "+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+":: More than 1 Brick generated "+brickCount +"at price:"+ohlc.get(0).getData().getClose());
+					System.out.println("Signal:Sell at "+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+":: More than 1 Brick generated "+brickCount +"at price:"+ohlc.get(brickCount-1).getData().getClose());
 					
 					this.last_signal_type = 0;//set last signal as Sell(0)
 				}
@@ -181,10 +189,32 @@ public class TradingSession {
 		if(brick.getData().getClose() > brick.getData().getOpen())return 1;
 		return 0;
 	}
-	
-	public double getProfit(){
-		return this.profit;
+	public double calculateProfit() {
+		if(this.orderCount>1 && orderCount>lastCalculatedTrade) {
+			String firstOrderSet = (String)(orders.column(1).keySet().toArray())[0];
+			boolean isBuy = firstOrderSet.startsWith("Buy");
+			
+			if(isBuy) {
+				if(this.orderCount %2 ==0) {
+					this.tempProfit += (double)(orders.column(this.orderCount).values().toArray()[0]) - (double)(orders.column(this.orderCount-1).values().toArray()[0]) ;
+				}else {
+					this.tempProfit += (double)(orders.column(this.orderCount-1).values().toArray()[0]) - (double)(orders.column(this.orderCount).values().toArray()[0]) ;
+					
+				}
+				}else {
+				if(this.orderCount%2 ==0) {
+					this.tempProfit +=  (double)(orders.column(this.orderCount-1).values().toArray()[0]) - (double)(orders.column(this.orderCount).values().toArray()[0]);	
+				}else {
+					this.tempProfit +=  (double)(orders.column(this.orderCount).values().toArray()[0]) - (double)(orders.column(this.orderCount-1).values().toArray()[0]);	
+					
+				}
+				this.lastCalculatedTrade = this.orderCount;
+			}		
+			}
+		System.out.println("Profit till now:"+tempProfit+":: oc:"+this.orderCount);
+		return this.tempProfit;
 	}
+	
 	public ArrayList<Ticker> getRenkoBricks(){
 		return this.rb;
 	}
