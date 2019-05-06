@@ -63,7 +63,7 @@ public class Util {
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("x-api-key", "2DgWnzxnRk1TGBQZgdLH37lRcCtCLWE72oWsD9Tn");
-		headers.setBearerAuth("061e35025bdeb27bd9cc0afc8e3de060d1798372");
+		headers.setBearerAuth("bbc535e2b2542cc332d175e021c035b193c58314");
 		HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
         ResponseEntity<Ticker> response = restTemplate.exchange("http://localhost:3000/data",HttpMethod.GET,entity, Ticker.class);//https://api.upstox.com/live/feed/now/nse_eq/SBIN/fullhttp://localhost:3000
         Ticker ticker = (Ticker) response.getBody();
@@ -77,9 +77,9 @@ public class Util {
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("x-api-key", "2DgWnzxnRk1TGBQZgdLH37lRcCtCLWE72oWsD9Tn");
-		headers.setBearerAuth("da3a89875b50028d1557bacb799ab3749c3777c4");
+		headers.setBearerAuth("bbc535e2b2542cc332d175e021c035b193c58314");
 		HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
-        ResponseEntity<HistoricalAPIResponse> response = restTemplate.exchange("https://api.upstox.com/historical/nse_eq/AXISBANK/1",HttpMethod.GET,entity, HistoricalAPIResponse.class);//https://api.upstox.com/live/feed/now/nse_eq/SBIN/fullhttp://localhost:3000
+        ResponseEntity<HistoricalAPIResponse> response = restTemplate.exchange("https://api.upstox.com/historical/nse_index/NIFTY_BANK/1?start_date=25-04-2019&end_date=25-04-2019",HttpMethod.GET,entity, HistoricalAPIResponse.class);//https://api.upstox.com/live/feed/now/nse_eq/SBIN/fullhttp://localhost:3000
         HistoricalAPIResponse apiResponse = (HistoricalAPIResponse) response.getBody();
 		
 		return apiResponse.getData();

@@ -6,8 +6,14 @@ import TextField from '@material-ui/core/TextField';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import Button from '@material-ui/core/Button';
 import { Paper } from '@material-ui/core';
-
+import TransactionTable from './TransactionTable';
 import HistoricalRenkoContainer from './HistoricalRenkoContainer';
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
+import Avatar from '@material-ui/core/Avatar';
+import Chip from '@material-ui/core/Chip';
+import FaceIcon from '@material-ui/icons/Face';
+
 
 const styles = theme => ({
   appBarSpacer: theme.mixins.toolbar,
@@ -17,6 +23,10 @@ const styles = theme => ({
     height: '100vh',
     overflow: 'auto',
     width:'100%'
+  },
+  tableContainer: {
+    width: '100%',
+    height: '320px'
   },
   textField: {
     marginLeft: theme.spacing.unit,
@@ -51,16 +61,74 @@ const styles = theme => ({
 class HistoricalTab extends React.Component {
   constructor(){
       super()
-      this.state = {brick_size:10,ticker_name:"AXISBANK",start_date:"2017-05-24",end_date:"2017-05-29",data:[]};
+      this.state = {brick_size:10,ticker_name:"AXISBANK",start_date:"2017-05-24",end_date:"2017-05-29",data:[],trans:[]};
       this.handleBSChange = this.handleBSChange.bind(this);
       this.handleDateChange = this.handleDateChange.bind(this);
       this.handleTNChange = this.handleTNChange.bind(this);
-      this.fetchAndDraw = this.fetchAndDraw.bind(this);
+      this.stompClient = null;
+      this.getStompClient = this.getStompClient.bind(this);
+      this.SocketConnect = this.SocketConnect.bind(this);
+      this.handleSubmit = this.handleSubmit.bind(this);
   }
+
+  getStompClient = () =>{
+    if(this.stompClient== null){
+      let socket = new SockJS("http://localhost:8080/gs-guide-websocket");
+      this.stompClient= Stomp.over(socket);
+    }
+    return this.stompClient;
+  }
+SocketConnect = () =>{
+    if(this.state.connected === true)return;
+    let stompClientInstance = this.getStompClient();
+    stompClientInstance.connect({}, frame => {
+      this.setState({connected: true});
+      
+      stompClientInstance.subscribe('/topic/historical_trans_stream', transactions => {
+        let results = JSON.parse(transactions.body);
+        let output = [];  
+        for(let i = 0;i<results.length;i++){
+          let seq = results[i].columnKey;
+          let val = results[i];
+          output[seq] =  val; 
+        }
+        this.setState({trans:output});
+        console.log("trans:"+this.state.trans);
+      });
+
+
+      stompClientInstance.subscribe('/topic/historical_data_stream', ndata => {
+        var bricks = [];
+        for(var i=0;i<JSON.parse(ndata.body).length;i++){
+          //console.log("****nDataBody:"+JSON.parse(ndata.body)[i].data);
+          var nd =new Date(JSON.parse(ndata.body)[i].data.timestamp)
+          var op = JSON.parse(ndata.body)[i].data.open;
+          var hi = JSON.parse(ndata.body)[i].data.high;
+          var lo = JSON.parse(ndata.body)[i].data.low;
+          var cl = JSON.parse(ndata.body)[i].data.close;
+          var vol = JSON.parse(ndata.body)[i].data.volume;
+          var newBrick = {date: nd, open: op, high: hi, low: lo, close: cl, volume : vol};
+          this.setState({data : [...this.state.data, newBrick]});
+          //bricks.push(newBrick);
+        }
+        //console.log("****stateData:"+this.state.data);
+      });
+});
+}
+
+
+  handleSubmit(event) {
+    this.getStompClient().send("/app/StartHistoricalDataStream", {}, JSON.stringify({'brick_size' : this.state.brick_size,'ticker_name': this.state.ticker_name}))
+    this.setState({streamingStarted: true});
+    console.log('Historical Tab: A ticker was submitted: ' + this.state.ticker +": BS: "+this.state.brick_size);
+    event.preventDefault();
+  }
+
   handleBSChange = (event) => {
     console.log("Brick Size changed");
     this.setState({brick_size: event.target.value});
   }
+
   handleTNChange = (event) => {
     console.log("Ticker name changed");
     this.setState({ticker_name: event.target.value});
@@ -76,28 +144,7 @@ class HistoricalTab extends React.Component {
     }
   }
 
-  fetchAndDraw =() =>{
-      fetch("http://localhost:8080/historical/")
-      .then(result => result.json())
-      .then(results => this.parseData(results));
-      
-
-  }
-  parseData = (results) => {
-    let output = [];  
-    for(let i = 0;i<results.length;i++){
-        var nd =new Date(results[i].data.timestamp)
-          var op = results[i].data.open;
-          var hi = results[i].data.high;
-          var lo = results[i].data.low;
-          var cl = results[i].data.close;
-          var vol = results[i].data.volume;
-          var newArr = {date: nd, open: op, high: hi, low: lo, close: cl, volume : vol};
-          output[i]= newArr;
-    }
-    this.setState({data:output});
-    console.log(this.state);
-  }
+  
 
   render() {
     const { classes } = this.props;
@@ -154,10 +201,17 @@ class HistoricalTab extends React.Component {
                         shrink: true,
                         }}
                     />
-                    <Button variant="contained" color="default" className={classes.fetchButton} onClick={this.fetchAndDraw}>
+                    <Button variant="contained" color="default" className={classes.fetchButton} onClick={this.handleSubmit}>
                         Fetch and Draw
                         <CloudDownloadIcon className={classes.rightIcon} />
                     </Button>
+                    <Chip 
+                      onClick={this.SocketConnect}
+                      className={classes.connectedChip} 
+                      label={this.state.connected ? "Connected" : "Connect"} 
+                      color={this.state.connected ? "primary" : "default"}
+                      avatar={<Avatar><FaceIcon /></Avatar>}//TODO: change avatar based on state
+                    />
                 </Paper>
             </Grid>
             <Grid item xs={12}>
@@ -166,6 +220,15 @@ class HistoricalTab extends React.Component {
                 </Paper>
             </Grid>
           </Grid>
+          {this.state.data.length>2 && 
+          <div>
+          <Typography variant="h6" gutterBottom component="h6">
+            Actions
+          </Typography>
+          <div className={classes.tableContainer}>
+            <TransactionTable data={this.state.trans}/>
+          </div>
+          </div>}
         </main>
       </div>
     )

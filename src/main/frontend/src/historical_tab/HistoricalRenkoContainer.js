@@ -13,7 +13,10 @@ class HistoricalRenkoContainer extends React.Component {
     this.state = {data:[]}
   }
   componentWillReceiveProps = (nextProps) => {
-      this.setState({data: nextProps.data})
+    if(nextProps.data.length > 0)  {
+      
+    this.setState({data: nextProps.data})
+    }
   }
   render() {
     const {classes} = this.props;

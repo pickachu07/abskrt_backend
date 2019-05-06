@@ -19,6 +19,7 @@ public class Renko {
 	
 	private ArrayList<Double> ro;
 	private ArrayList<Double> rc;
+	private ArrayList<Integer> brickTypeArray;
 	private double buf;
 	private double cur;
 	private int bCount;
@@ -28,6 +29,7 @@ public class Renko {
 	private Renko() {
 		ro = new ArrayList<Double>();
 		rc = new ArrayList<Double>();
+		brickTypeArray = new ArrayList<Integer>();
 		this.brickSize = -1;
 		this.bCount = -1;
 		this.cur = 0;
@@ -53,12 +55,16 @@ public class Renko {
 	public OHLC[] drawRenko(OHLC[] data, double bs) {
 		return null;
 	}
+	public ArrayList<Integer> getRenkoBrickTypeArray(){
+		return this.brickTypeArray;
+	} 
 	
 	public ArrayList<Ticker> drawRenko(Ticker tick,double bs) {
 		this.brickSize = bs;
 		TickerData data = tick.getData();
 		double cOpen = data.getOpen();
 		double cClose = data.getClose();
+		long timestamp = data.getTimestamp();
 		int tempRenkoBrickCount = 0;
 		ArrayList<Ticker> tickerArray = new ArrayList<Ticker>();
 		
@@ -75,9 +81,11 @@ public class Renko {
 				
 				double currRenClose = currRenOpen+this.brickSize;
 				//create current renko brick in ticker
-				TickerData currData = new TickerData(currRenOpen,currRenClose,currRenOpen,currRenClose,0,new Date().getTime(),"NSE_EQ","",0,0);
-				Ticker currTick = new Ticker("Renko", currData,new Date());
+				TickerData currData = new TickerData(currRenOpen,currRenClose,currRenOpen,currRenClose,0,timestamp,"NSE_EQ","",0,0);
+				Ticker currTick = new Ticker("Renko", currData,new Date(timestamp*1000));
 				tickerArray.add(tempRenkoBrickCount, currTick);
+				//add 1 to bricktype array
+				brickTypeArray.add(tempRenkoBrickCount,1);
 				//increase temp renko brick count
 				tempRenkoBrickCount++;
 				
@@ -92,9 +100,11 @@ public class Renko {
 			for(int i=0; i< (Math.abs(this.buf)/this.brickSize);i++){
 				double currRenClose = currRenOpen-this.brickSize;
 				//create current renko brick in ticker
-				TickerData currData = new TickerData(currRenOpen,currRenOpen,currRenClose,currRenClose,0,new Date().getTime(),"NSE_EQ","",0,0);
-				Ticker currTick = new Ticker("Renko", currData,new Date());
+				TickerData currData = new TickerData(currRenOpen,currRenOpen,currRenClose,currRenClose,0,timestamp,"NSE_EQ","",0,0);
+				Ticker currTick = new Ticker("Renko", currData,new Date(timestamp*1000));
 				tickerArray.add(tempRenkoBrickCount, currTick);
+				//add 0 to bricktype array
+				brickTypeArray.add(tempRenkoBrickCount,0);
 				//increase temp renko brick count
 				tempRenkoBrickCount++;
 				
