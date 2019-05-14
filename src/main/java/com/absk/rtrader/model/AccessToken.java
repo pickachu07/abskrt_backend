@@ -1,6 +1,6 @@
 package com.absk.rtrader.model;
 
-public class ApiCode {
+public class AccessToken {
 
 	private String date;
 	private String code;
@@ -8,7 +8,7 @@ public class ApiCode {
 	public String toString() {
 		return "ApiCode [date=" + date + ", code=" + code + "]";
 	}
-	public ApiCode(String date, String code) {
+	public AccessToken(String date, String code) {
 		super();
 		this.date = date;
 		this.code = code;
@@ -26,3 +26,6 @@ public class ApiCode {
 		this.code = code;
 	}
 }
+
+
+

@@ -3,29 +3,36 @@ package com.absk.rtrader.exchange.upstox;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.tomcat.util.codec.binary.Base64;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.absk.rtrader.model.ApiCode;
+import com.absk.rtrader.model.AccessToken;
 import com.absk.rtrader.model.HistoricalAPIResponse;
 import com.absk.rtrader.model.OHLC;
 import com.absk.rtrader.model.Ticker;
-import com.absk.rtrader.repository.ApiCodeRepository;
+import com.absk.rtrader.repository.AccessTokenRepository;
 import com.absk.rtrader.utils.ConfigUtil;
 import com.absk.rtrader.utils.TickerUtil;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 @Component
 public class Util {
 
 	@Autowired
-	ApiCodeRepository acr;
+	AccessTokenRepository atr;
 	
 	@Autowired
 	ConfigUtil config;
@@ -33,21 +40,58 @@ public class Util {
 	@Autowired
 	TickerUtil tickerUtil;
 	
+	@Autowired
+	RestTemplateBuilder restTemplateBuilder;
+	
 	private static final Logger logger = LoggerFactory.getLogger(Util.class);
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 	
-	public ApiCode saveAuthCode(String code) {
-		String todaysDate = dateFormat.format(new Date());
-		acr.deleteAll();
-		return acr.save(new ApiCode(todaysDate, code));
+	public AccessToken saveAuthCode(String code) {
 		
+		System.out.println("Api code:"+code);
+		String token =getAccessToken(code);
+		System.out.println("Acess token: "+token);
+		AccessToken accessToken = new AccessToken(dateFormat.format(new Date()),token);
+		atr.deleteAll();
+		atr.save(accessToken);
+		return accessToken; 
 	}
 	
-	public String getCurrentApiCode(){
+	private String getAccessToken(String code) {
+		RestTemplate restTemplate = new RestTemplate();
 		
-		String apiCode = acr.getByDate(dateFormat.format(new Date())).get(0).getCode();
+		String plainCreds = "2DgWnzxnRk1TGBQZgdLH37lRcCtCLWE72oWsD9Tn:7025xno292";
+		byte[] plainCredsBytes = plainCreds.getBytes();
+		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
+		String base64Creds = new String(base64CredsBytes);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Authorization", "Basic " + base64Creds);
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("x-api-key", "2DgWnzxnRk1TGBQZgdLH37lRcCtCLWE72oWsD9Tn");
 		
-		return apiCode;
+		JSONObject request = new JSONObject();
+		request.put("code", code);
+		request.put("grant_type", "authorization_code");
+		request.put("redirect_uri", "http://localhost:8080/auth/");
+		
+		
+		HttpEntity<String> entity = new HttpEntity<String>(request.toString(),headers);
+	
+		ResponseEntity<String> response = restTemplate.postForEntity("https://api.upstox.com/index/oauth/token",entity, String.class);
+		//result.toString();
+		Gson gson = new Gson();
+		JsonElement element = gson.fromJson (response.getBody(), JsonElement.class);
+		JsonObject jsonObj = element.getAsJsonObject();
+		System.out.println("Acess token response: "+jsonObj.get("access_token"));
+        return jsonObj.get("access_token").getAsString();
+	}
+	 
+	
+	public String getCurrentAccessToken(){
+		
+		String token = atr.getByDate(dateFormat.format(new Date())).get(0).getCode();
+		return token;
 		
 	}
 	public ModelAndView initAuthentication(){

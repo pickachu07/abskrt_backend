@@ -5,10 +5,10 @@ import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import com.absk.rtrader.model.ApiCode;
+import com.absk.rtrader.model.AccessToken;
 
 @Repository
-public interface ApiCodeRepository extends MongoRepository<ApiCode, Long>{
+public interface AccessTokenRepository extends MongoRepository<AccessToken, Long>{
 
-	public List<ApiCode> getByDate(String date);
+	public List<AccessToken> getByDate(String string);
 }

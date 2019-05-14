@@ -4,29 +4,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 
 import com.absk.rtrader.exchange.upstox.Util;
-import com.absk.rtrader.repository.ApiCodeRepository;
+import com.absk.rtrader.model.AccessToken;
+import com.absk.rtrader.repository.AccessTokenRepository;
 
 @RestController
 public class UpstoxAuthController {
 
 	@Autowired
-	ApiCodeRepository acr;
+	AccessTokenRepository acr;
 	
 	@Autowired
 	Util upstoxUtil;
 	
 	
-	@GetMapping("/")
+	@GetMapping("/auth")
     public String saveApiCode(@RequestParam("code") String code) {
-		return upstoxUtil.saveAuthCode(code).toString();
+		AccessToken act = upstoxUtil.saveAuthCode(code);
+		return act.toString();
     }
 	
-	@GetMapping("/authenticate")
-	public ModelAndView initAuth(){
-		return upstoxUtil.initAuthentication();
+	@GetMapping("/get-token")
+	public String getValidToken(){
+		return upstoxUtil.getCurrentAccessToken();
 		
 	}
 }
