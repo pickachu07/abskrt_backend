@@ -2,6 +2,7 @@ package com.absk.rtrader.exchange.upstox;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.json.JSONObject;
@@ -57,6 +58,11 @@ public class Util {
 		return accessToken; 
 	}
 	
+	public boolean isAccessTokenValid() {
+		if((getCurrentAccessToken().length()>0 )&& (atr.getByDate(dateFormat.format(new Date())).size() > 0))return true;
+		return false;
+	}
+	
 	private String getAccessToken(String code) {
 		RestTemplate restTemplate = new RestTemplate();
 		
@@ -89,8 +95,9 @@ public class Util {
 	 
 	
 	public String getCurrentAccessToken(){
-		
-		String token = atr.getByDate(dateFormat.format(new Date())).get(0).getCode();
+		List<AccessToken> tokenList = atr.getByDate(dateFormat.format(new Date()));
+		if(tokenList.size() ==  0)return "";
+		String token = tokenList.get(0).getCode();
 		return token;
 		
 	}
