@@ -1,5 +1,8 @@
 package com.absk.rtrader.model;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "token")
 public class AccessToken {
 
 	private String date;
