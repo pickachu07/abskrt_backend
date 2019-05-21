@@ -39,7 +39,7 @@ public class TickerController {
     }
 	@GetMapping("/get")
     public String getOHLC() {
-		return null;
+		return "Site is up";
     }
 	
 	@GetMapping("/start")
