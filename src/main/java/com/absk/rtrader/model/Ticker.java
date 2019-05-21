@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 
 
-@Document(collection = "absk_ticker")
+@Document(collection = "abskrt_col_ticker")
 public class Ticker{
 
 	@Id
