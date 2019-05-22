@@ -4,7 +4,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +21,9 @@ import com.google.common.collect.Table.Cell;
 
 
 @Component
-@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class TradingSession {
 
+	
 	@Autowired
 	private Renko renko;
 	
@@ -80,56 +79,32 @@ public class TradingSession {
 		orders.put("Sell at "+dateFormat.format(date), orderCount, price);
 	}
 	
-	void calculatePnL() {
-		
+	double getProfit() {
+		return this.tempProfit;
 	}
 	
-	public void processAllData(OHLC[] ohlc) {
-		//draw renko --> binary array
-		Renko renkoInstance = renko.getInstance();
-		int prev_len_bta = 0;
-		int prev_last_elem_bta = -1;
-		int last_signal = -1;
-		 
-		for(int i=0;i<ohlc.length;i++) {
-			ArrayList<Integer> bta = new ArrayList<Integer>();
-			rb.addAll(renkoInstance.drawRenko(tickerUtil.convertToTicker(ohlc[i]), this.brickSize));
-			bta = renkoInstance.getRenkoBrickTypeArray();
-			//Collections.reverse(bta);
-			Object[] btarr = bta.toArray();
-			//System.out.println("renko bricktype:"+ Arrays.toString(bta.toArray()));
-			
-			int len_bta = bta.toArray().length;
-			
-			if(len_bta > prev_len_bta) {//if new bricks created
-				int last_elem = (int)btarr[0];
-				
-				if(prev_last_elem_bta == last_elem) {//two consecutive same bricks 
-					
-					//prevent similar conecutive signals
-					if(last_signal != 1 && last_elem == 1) {
-						//buy signal
-						//registerSellOpt(rb.get(rb.size()-1).getData().getClose());
-						last_signal = 1;
-					}
-					if(last_signal != 0 && last_elem == 0) {
-						//sell_signal
-						//registerBuyOpt(rb.get(rb.size()-1).getData().getClose());
-						last_signal = 0;
-					}
-				}
-				prev_last_elem_bta = last_elem;
-			}
-			prev_len_bta = len_bta;
-			
-		}
+	public double processAllData(OHLC[] data,double bs) {
+		
+		ArrayList<Ticker> tickArr;
+		
+		Renko rInstance = renko.getInstance();
+		for(int i=0;i<data.length;i++) {
+    		
+    		System.out.println("Historical data:"+data[i].getClose());
+    		Ticker tick = tickerUtil.convertToTicker(data[i]);
+    		tickArr = rInstance.drawRenko(tick,bs);
+    		processData(tickArr);
+    		calculateProfit();
+    		tickArr = null;
+    	}
+		return this.tempProfit;
 	}
 	
 	public void processData(ArrayList<Ticker> ohlc) {
 		int brickCount =  ohlc.size();
 		if(ohlc.size()<1)return;
 		for(int i=0;i<brickCount;i++) {
-			System.out.println("BrickCount:"+i+"Close: "+ohlc.get(i).getData().getClose());
+			//System.out.println("BrickCount:"+i+"Close: "+ohlc.get(i).getData().getClose());
 		}
 		int current_signal_type = getBrickType(ohlc.get(0));//1 --> positive brick 0 --> negetive brick
 		if(brickCount ==1) {
@@ -138,7 +113,7 @@ public class TradingSession {
 					if(this.last_signal_type != 1) { //last signal not buy(1) --> last signal sell(0) or null(-1)
 						//buy Signal
 						registerBuyOpt(ohlc.get(brickCount-1).getData().getClose(),new Date(ohlc.get(brickCount-1).getData().getTimestamp()));
-						System.out.println("Signal:Buy :: last signal is not buy at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+":: Single Brick generated"+brickCount +" at price:"+ohlc.get(brickCount-1).getData().getClose());
+						//System.out.println("Signal:Buy :: last signal is not buy at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+":: Single Brick generated"+brickCount +" at price:"+ohlc.get(brickCount-1).getData().getClose());
 						
 						this.last_signal_type = 1;//set last signal as sell(0)		
 					}	
@@ -153,7 +128,7 @@ public class TradingSession {
 						//sell Signal
 						registerSellOpt(ohlc.get(brickCount-1).getData().getClose(),new Date(ohlc.get(brickCount-1).getData().getTimestamp()));
 						
-						System.out.println("Signal:Sell :: last signal is not sell at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+" :: Single Brick generated"+brickCount +" at price:"+ohlc.get(brickCount-1).getData().getClose());
+						//System.out.println("Signal:Sell :: last signal is not sell at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+" :: Single Brick generated"+brickCount +" at price:"+ohlc.get(brickCount-1).getData().getClose());
 						this.last_signal_type = 0;//set last signal as sell(0)		
 					}	
 					this.buffer_signal_type = -1;//reset buffer
@@ -168,14 +143,14 @@ public class TradingSession {
 				if(this.last_signal_type != 1) { //last signal not buy(1) --> last signal sell(0) or null(-1)
 					//Buy Signal
 					registerBuyOpt(ohlc.get(brickCount-1).getData().getClose(),new Date(ohlc.get(brickCount-1).getData().getTimestamp()));
-					System.out.println("Signal:Buy at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+":: More than 1 Brick generated"+brickCount +" at price"+ohlc.get(brickCount-1).getData().getClose());
+					//System.out.println("Signal:Buy at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+":: More than 1 Brick generated"+brickCount +" at price"+ohlc.get(brickCount-1).getData().getClose());
 					this.last_signal_type = 1;//set last signal as Buy(1)
 				}
 			}else {//negetive brick
 				if(this.last_signal_type != 0) { //last signal not sell(0) last signal buy(1) or null(-1)
 					//Sell Signal
 					registerSellOpt(ohlc.get(brickCount-1).getData().getClose(),new Date(ohlc.get(brickCount-1).getData().getTimestamp()));
-					System.out.println("Signal:Sell at "+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+":: More than 1 Brick generated "+brickCount +"at price:"+ohlc.get(brickCount-1).getData().getClose());
+					//System.out.println("Signal:Sell at "+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+":: More than 1 Brick generated "+brickCount +"at price:"+ohlc.get(brickCount-1).getData().getClose());
 					
 					this.last_signal_type = 0;//set last signal as Sell(0)
 				}
