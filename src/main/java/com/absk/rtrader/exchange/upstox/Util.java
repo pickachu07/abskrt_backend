@@ -127,10 +127,15 @@ public class Util {
 	public OHLC[] getHistoricalOHLC() {
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
-		headers.set("x-api-key", "2DgWnzxnRk1TGBQZgdLH37lRcCtCLWE72oWsD9Tn");
-		headers.setBearerAuth("bbc535e2b2542cc332d175e021c035b193c58314");
+		String token = "";
+		headers.set("x-api-key", config.getApiKey());
+		if(!isAccessTokenValid()) {return null;}
+		else {
+			token = getCurrentAccessToken();
+		}
+		headers.setBearerAuth(token);
 		HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
-        ResponseEntity<HistoricalAPIResponse> response = restTemplate.exchange("https://api.upstox.com/historical/nse_index/NIFTY_BANK/1?start_date=25-04-2019&end_date=25-04-2019",HttpMethod.GET,entity, HistoricalAPIResponse.class);//https://api.upstox.com/live/feed/now/nse_eq/SBIN/fullhttp://localhost:3000
+        ResponseEntity<HistoricalAPIResponse> response = restTemplate.exchange("https://api.upstox.com/historical/nse_index/NIFTY_BANK/1?start_date=14-05-2019&end_date=14-05-2019",HttpMethod.GET,entity, HistoricalAPIResponse.class);//https://api.upstox.com/live/feed/now/nse_eq/SBIN/fullhttp://localhost:3000
         HistoricalAPIResponse apiResponse = (HistoricalAPIResponse) response.getBody();
 		
 		return apiResponse.getData();
