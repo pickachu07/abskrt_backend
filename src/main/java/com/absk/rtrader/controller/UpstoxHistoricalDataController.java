@@ -36,17 +36,17 @@ public class UpstoxHistoricalDataController {
 	
 	
 	
-	@CrossOrigin(origins = "http://localhost:3000")
+	@CrossOrigin(origins = "https://abskrt-webapp.azurewebsites.net")
 	@GetMapping("/")
 	public ArrayList<Ticker> getData(){
 		
 		OHLC[] data = upstoxUtil.getHistoricalOHLC();
 		//TradingSession ts = new TradingSession();
-		ts.processAllData(data);
+		ts.processAllData(data,4);//TODO: add brick size and ticker as params
 		return ts.getRenkoBricks();
 	}
 	
-	@CrossOrigin(origins = "http://localhost:3000")
+	@CrossOrigin(origins = "https://abskrt-webapp.azurewebsites.net")
 	@GetMapping("/trans")
 	public  Set<Cell<String, Integer, Double>> getTransactions(){
 		//OHLC[] data = upstoxUtil.getHistoricalOHLC();

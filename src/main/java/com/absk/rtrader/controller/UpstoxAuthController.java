@@ -30,18 +30,19 @@ public class UpstoxAuthController {
 	@GetMapping("/auth")
     public ModelAndView saveApiCode(@RequestParam("code") String code) {
 		AccessToken act = upstoxUtil.saveAuthCode(code);
-		final String redirURL = "http://localhost:3000/settings";
+		final String redirURL = "https://abskrt-webapp.azurewebsites.net/settings";
 		
 		return new ModelAndView("redirect:" + redirURL);
     }
 	
 	@GetMapping("/initauth")
     public ModelAndView initAuth() {
+		
 		return upstoxUtil.initAuthentication();
     }
 	
 	
-	@CrossOrigin(origins = "http://localhost:3000")
+	@CrossOrigin(origins = "https://abskrt-webapp.azurewebsites.net")
 	@GetMapping("/get-auth-data")
 	public Map<String, String> getValidToken(){
 		HashMap<String, String> authData = new HashMap<>();
