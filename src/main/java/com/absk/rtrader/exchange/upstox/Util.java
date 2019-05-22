@@ -79,7 +79,7 @@ public class Util {
 		JSONObject request = new JSONObject();
 		request.put("code", code);
 		request.put("grant_type", "authorization_code");
-		request.put("redirect_uri", "http://localhost:8080/auth/");
+		request.put("redirect_uri", "https://abskrt-backend.azurewebsites.net/auth/");
 		
 		
 		HttpEntity<String> entity = new HttpEntity<String>(request.toString(),headers);
@@ -116,10 +116,10 @@ public class Util {
 		headers.set("x-api-key", "2DgWnzxnRk1TGBQZgdLH37lRcCtCLWE72oWsD9Tn");
 		headers.setBearerAuth("bbc535e2b2542cc332d175e021c035b193c58314");
 		HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
-        ResponseEntity<Ticker> response = restTemplate.exchange("http://localhost:3000/data",HttpMethod.GET,entity, Ticker.class);//https://api.upstox.com/live/feed/now/nse_eq/SBIN/fullhttp://localhost:3000
+        ResponseEntity<Ticker> response = restTemplate.exchange("https://api.upstox.com/live/feed/now/nse_index/NIFTY_BANK/full",HttpMethod.GET,entity, Ticker.class);//https://api.upstox.com/live/feed/now/nse_eq/SBIN/fullhttp://localhost:3000
         Ticker ticker = (Ticker) response.getBody();
         logger.info(ticker.toString());
-      //tickerUtil.saveTicker(ticker);
+        tickerUtil.saveTicker(ticker);
         return ticker;
         
         

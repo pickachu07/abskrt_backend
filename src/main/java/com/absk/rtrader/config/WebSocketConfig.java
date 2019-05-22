@@ -20,9 +20,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/gs-guide-websocket").setAllowedOrigins("http://localhost:3000").withSockJS();
-        registry.addEndpoint("/historical").setAllowedOrigins("http://localhost:3000");
-        registry.addEndpoint("/get-auth-data").setAllowedOrigins("http://localhost:3000");
+        registry.addEndpoint("/gs-guide-websocket").setAllowedOrigins("https://abskrt-webapp.azurewebsites.net").withSockJS();
+        registry.addEndpoint("/historical").setAllowedOrigins("https://abskrt-webapp.azurewebsites.net");
+        registry.addEndpoint("/get-auth-data").setAllowedOrigins("https://abskrt-webapp.azurewebsites.net");
         
     }
 
