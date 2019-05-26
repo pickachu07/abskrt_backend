@@ -28,7 +28,7 @@ public class OptimizationController {
 	@Autowired
 	Optimizer optimizer;
 	
-	@CrossOrigin(origins = "https://abskrt-webapp.azurewebsites.net")
+	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping("/")
 	public Double getData(){	
 		optimizer.optimize(upstoxUtil.getHistoricalOHLC());
