@@ -74,12 +74,12 @@ public class Util {
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Authorization", "Basic " + base64Creds);
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.set("x-api-key", "2DgWnzxnRk1TGBQZgdLH37lRcCtCLWE72oWsD9Tn");
+		headers.set("x-api-key", config.getApiKey());
 		
 		JSONObject request = new JSONObject();
 		request.put("code", code);
 		request.put("grant_type", "authorization_code");
-		request.put("redirect_uri", "https://abskrt-backend.azurewebsites.net/auth/");
+		request.put("redirect_uri", config.getRedirectUrl());
 		
 		
 		HttpEntity<String> entity = new HttpEntity<String>(request.toString(),headers);
@@ -113,11 +113,13 @@ public class Util {
 	{
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
-		headers.set("x-api-key", "2DgWnzxnRk1TGBQZgdLH37lRcCtCLWE72oWsD9Tn");
-		headers.setBearerAuth("bbc535e2b2542cc332d175e021c035b193c58314");
+		String token = getCurrentAccessToken();
+		headers.set("x-api-key", config.getApiKey());
+		headers.setBearerAuth(token);
 		HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
         ResponseEntity<Ticker> response = restTemplate.exchange("https://api.upstox.com/live/feed/now/nse_index/NIFTY_BANK/full",HttpMethod.GET,entity, Ticker.class);//https://api.upstox.com/live/feed/now/nse_eq/SBIN/fullhttp://localhost:3000
         Ticker ticker = (Ticker) response.getBody();
+        System.out.println("Current Close::::::"+ticker.getData().getClose());
         logger.info(ticker.toString());
         tickerUtil.saveTicker(ticker);
         return ticker;
