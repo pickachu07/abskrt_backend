@@ -13,7 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
+import com.absk.rtrader.exchange.upstox.services.UpstoxWebSocketService;
 import com.absk.rtrader.model.Ticker;
 import com.absk.rtrader.repository.TickerRepository;
 import com.absk.rtrader.scheduler.CentralScheduler;
@@ -27,8 +29,9 @@ public class TickerController {
 	@Autowired
 	private TickerRepository tickerRepository;
 	
+
 	@Autowired
-	private CentralScheduler centralScheduler;
+    private UpstoxWebSocketService upstoxWebSocketService;
 	
 	@GetMapping("/tickers")
     public Page<Ticker> getTickers(Pageable pageable) {
@@ -74,5 +77,17 @@ public class TickerController {
 	public void stopScheduler() {
 		CentralScheduler.getInstance().stopAll();
 	}
+	
+	@GetMapping(value = "/connect")
+    public ModelAndView wsConnect() {
+        log.info("Triggered websocket connect request");
+        try {
+			upstoxWebSocketService.connect();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return new ModelAndView("redirect:http://localhost:3000");
+    }
 	
 }
