@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,9 +78,15 @@ public class Util {
 		headers.set("x-api-key", config.getApiKey());
 		
 		JSONObject request = new JSONObject();
-		request.put("code", code);
-		request.put("grant_type", "authorization_code");
-		request.put("redirect_uri", config.getRedirectUrl());
+		try {
+			request.put("code", code);
+			request.put("grant_type", "authorization_code");
+			request.put("redirect_uri", config.getRedirectUrl());
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		
 		
 		HttpEntity<String> entity = new HttpEntity<String>(request.toString(),headers);
