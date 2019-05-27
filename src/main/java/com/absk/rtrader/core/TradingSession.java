@@ -171,16 +171,16 @@ public class TradingSession {
 			
 			if(isBuy) {
 				if(this.orderCount %2 ==0) {
-					this.tempProfit += (double)(orders.column(this.orderCount).values().toArray()[0]) - (double)(orders.column(this.orderCount-1).values().toArray()[0]) ;
+					this.tempProfit += (Double)(orders.column(this.orderCount).values().toArray()[0]) - (Double)(orders.column(this.orderCount-1).values().toArray()[0]) ;
 				}else {
-					this.tempProfit += (double)(orders.column(this.orderCount-1).values().toArray()[0]) - (double)(orders.column(this.orderCount).values().toArray()[0]) ;
+					this.tempProfit += (Double)(orders.column(this.orderCount-1).values().toArray()[0]) - (Double)(orders.column(this.orderCount).values().toArray()[0]) ;
 					
 				}
 				}else {
 				if(this.orderCount%2 ==0) {
-					this.tempProfit +=  (double)(orders.column(this.orderCount-1).values().toArray()[0]) - (double)(orders.column(this.orderCount).values().toArray()[0]);	
+					this.tempProfit +=  (Double)(orders.column(this.orderCount-1).values().toArray()[0]) - (Double)(orders.column(this.orderCount).values().toArray()[0]);	
 				}else {
-					this.tempProfit +=  (double)(orders.column(this.orderCount).values().toArray()[0]) - (double)(orders.column(this.orderCount-1).values().toArray()[0]);	
+					this.tempProfit +=  (Double)(orders.column(this.orderCount).values().toArray()[0]) - (Double)(orders.column(this.orderCount-1).values().toArray()[0]);	
 					
 				}
 				this.lastCalculatedTrade = this.orderCount;

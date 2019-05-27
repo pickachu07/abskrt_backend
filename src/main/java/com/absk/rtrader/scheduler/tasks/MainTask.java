@@ -41,7 +41,6 @@ public class MainTask implements Runnable{
 		this.brickSize = 0;
 		this.tickerName = "";
 	}
-	@Override
 	public void run() {
 		log.info("Main Task: ticker:"+this.tickerName+": brick size:"+this.brickSize);
 		

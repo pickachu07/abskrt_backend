@@ -116,7 +116,7 @@ public class Util {
 		String token = getCurrentAccessToken();
 		headers.set("x-api-key", config.getApiKey());
 		headers.setBearerAuth(token);
-		HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
+		HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
         ResponseEntity<Ticker> response = restTemplate.exchange("https://api.upstox.com/live/feed/now/nse_index/NIFTY_BANK/full",HttpMethod.GET,entity, Ticker.class);//https://api.upstox.com/live/feed/now/nse_eq/SBIN/fullhttp://localhost:3000
         Ticker ticker = (Ticker) response.getBody();
         System.out.println("Current Close::::::"+ticker.getData().getClose());
@@ -136,7 +136,7 @@ public class Util {
 			token = getCurrentAccessToken();
 		}
 		headers.setBearerAuth(token);
-		HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
+		HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
         ResponseEntity<HistoricalAPIResponse> response = restTemplate.exchange("https://api.upstox.com/historical/nse_index/NIFTY_BANK/1?start_date=14-05-2019&end_date=14-05-2019",HttpMethod.GET,entity, HistoricalAPIResponse.class);//https://api.upstox.com/live/feed/now/nse_eq/SBIN/fullhttp://localhost:3000
         HistoricalAPIResponse apiResponse = (HistoricalAPIResponse) response.getBody();
 		
