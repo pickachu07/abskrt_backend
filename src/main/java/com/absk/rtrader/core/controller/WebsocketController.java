@@ -12,8 +12,8 @@ import com.absk.rtrader.core.models.OHLC;
 import com.absk.rtrader.core.models.RealtimeStreamingSettings;
 import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.core.models.TickerData;
-import com.absk.rtrader.scheduler.CentralScheduler;
-import com.absk.rtrader.scheduler.tasks.MainTask;
+import com.absk.rtrader.core.schedulers.CentralScheduler;
+import com.absk.rtrader.core.scheduler.tasks.MainTask;
 
 @Controller
 public class WebsocketController {

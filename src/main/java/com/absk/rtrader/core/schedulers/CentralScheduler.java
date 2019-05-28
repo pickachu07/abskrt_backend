@@ -1,4 +1,4 @@
-package com.absk.rtrader.scheduler;
+package com.absk.rtrader.core.schedulers;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;

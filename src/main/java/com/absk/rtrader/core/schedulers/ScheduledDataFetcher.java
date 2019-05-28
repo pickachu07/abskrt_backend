@@ -1,4 +1,4 @@
-package com.absk.rtrader.scheduler;
+package com.absk.rtrader.core.schedulers;
 
 public class ScheduledDataFetcher {
 	

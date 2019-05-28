@@ -1,4 +1,4 @@
-package com.absk.rtrader.scheduler.tasks;
+package com.absk.rtrader.core.scheduler.tasks;
 
 import java.util.ArrayList;
 
