@@ -1,4 +1,4 @@
-package com.absk.rtrader.utils;
+package com.absk.rtrader.core.utils;
 
 import java.util.Date;
 import java.util.Random;

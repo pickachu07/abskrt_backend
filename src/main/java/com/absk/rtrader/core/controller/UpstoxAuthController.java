@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.absk.rtrader.core.utils.ConfigUtil;
 import com.absk.rtrader.exchange.upstox.Util;
 import com.absk.rtrader.exchange.upstox.utils.Cache;
-import com.absk.rtrader.utils.ConfigUtil;
 import com.github.rishabh9.riko.upstox.login.LoginService;
 import com.github.rishabh9.riko.upstox.login.models.AccessToken;
 import com.github.rishabh9.riko.upstox.login.models.TokenRequest;

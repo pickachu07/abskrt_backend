@@ -1,4 +1,4 @@
-package com.absk.rtrader.utils;
+package com.absk.rtrader.core.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
