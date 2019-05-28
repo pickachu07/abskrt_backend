@@ -1,4 +1,4 @@
-package com.absk.rtrader.core.models;
+package com.absk.rtrader.exchange.upstox.models;
 
 public class AccessTokenResponse {
 

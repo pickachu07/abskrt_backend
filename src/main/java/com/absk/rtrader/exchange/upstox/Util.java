@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.absk.rtrader.core.models.HistoricalAPIResponse;
+import com.absk.rtrader.exchange.upstox.models.HistoricalAPIResponse;
 import com.absk.rtrader.core.models.OHLC;
 import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.core.utils.ConfigUtil;

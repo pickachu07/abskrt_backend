@@ -1,9 +1,11 @@
-package com.absk.rtrader.core.models;
+package com.absk.rtrader.exchange.upstox.models;
 
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.absk.rtrader.core.models.OHLC;
 
 @Document(collection = "historicalAPIData")
 public class HistoricalAPIResponse {
