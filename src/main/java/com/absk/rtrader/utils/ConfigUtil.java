@@ -23,4 +23,8 @@ public class ConfigUtil {
         return env.getProperty("redirect_url");
     }
     
+    public String getFrontendUrl() {
+        return env.getProperty("frontend_url");
+    }
+    
 }
