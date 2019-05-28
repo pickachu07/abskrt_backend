@@ -15,7 +15,6 @@ import com.absk.rtrader.indicators.Renko;
 import com.absk.rtrader.model.OHLC;
 import com.absk.rtrader.model.Ticker;
 import com.absk.rtrader.utils.TickerUtil;
-import com.google.common.collect.Table;
 import com.google.common.collect.Table.Cell;
 
 @RestController

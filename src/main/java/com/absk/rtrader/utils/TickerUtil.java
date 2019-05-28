@@ -1,6 +1,5 @@
 package com.absk.rtrader.utils;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 
@@ -24,8 +23,8 @@ public class TickerUtil {
 
 	private static final Logger log = LoggerFactory.getLogger(TickerUtil.class);
 
-    private static final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+    //private static final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+    //private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 	
 	
 	public void createAndSaveMockTicker() {
