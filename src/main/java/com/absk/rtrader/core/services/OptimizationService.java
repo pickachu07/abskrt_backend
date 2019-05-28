@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.absk.rtrader.core.indicators.Renko;
 import com.absk.rtrader.core.models.OHLC;
@@ -13,8 +13,8 @@ import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.core.utils.TickerUtil;
 import com.absk.rtrader.exchange.upstox.Util;
 
-@Component
-public class Optimizer {
+@Service
+public class OptimizationService {
 
 	@Autowired
 	Util upstoxUtil;
@@ -30,7 +30,7 @@ public class Optimizer {
 	private long brick_size_end;
 	private int brick_size_incriment;
 	
-	public Optimizer(String tickerName, long brick_size_start, long brick_size_end, int brick_size_incriment) {
+	public OptimizationService(String tickerName, long brick_size_start, long brick_size_end, int brick_size_incriment) {
 		super();
 		this.tickerName = tickerName;
 		this.brick_size_start = brick_size_start;
@@ -38,7 +38,7 @@ public class Optimizer {
 		this.brick_size_incriment = brick_size_incriment;
 	}
 	
-	public Optimizer() {
+	public OptimizationService() {
 		this.tickerName = "BANKNIFTY";
 		this.brick_size_start = 1;
 		this.brick_size_end = 14;

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.absk.rtrader.core.constants.CoreConstants;
 import com.absk.rtrader.core.indicators.Renko;
-import com.absk.rtrader.core.services.Optimizer;
+import com.absk.rtrader.core.services.OptimizationService;
 import com.absk.rtrader.core.utils.TickerUtil;
 import com.absk.rtrader.exchange.upstox.Util;
 
@@ -27,7 +27,7 @@ public class OptimizationController {
 	TickerUtil util;
 	
 	@Autowired
-	Optimizer optimizer;
+	OptimizationService optimizer;
 	
 	@CrossOrigin(origins = CoreConstants.FRONTEND_BASE_URI)
 	@GetMapping("/")
