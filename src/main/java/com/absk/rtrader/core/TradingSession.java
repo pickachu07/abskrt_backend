@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.absk.rtrader.core.indicators.Renko;
-import com.absk.rtrader.model.OHLC;
-import com.absk.rtrader.model.Ticker;
+import com.absk.rtrader.core.models.OHLC;
+import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.utils.TickerUtil;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;

@@ -15,11 +15,11 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.absk.rtrader.exchange.upstox.services.UpstoxFeedServiceImpl;
 import com.absk.rtrader.exchange.upstox.services.UpstoxWebSocketService;
-import com.absk.rtrader.model.Ticker;
 import com.absk.rtrader.repository.TickerRepository;
 import com.absk.rtrader.scheduler.CentralScheduler;
 
 import com.absk.rtrader.exchange.upstox.constants.FeedTypeConstants;
+import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.exchange.upstox.constants.ExchangeTypes;
 import com.absk.rtrader.exchange.upstox.constants.UpstoxTicker;
 

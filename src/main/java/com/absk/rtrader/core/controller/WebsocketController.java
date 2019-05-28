@@ -8,10 +8,10 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
-import com.absk.rtrader.model.OHLC;
-import com.absk.rtrader.model.RealtimeStreamingSettings;
-import com.absk.rtrader.model.Ticker;
-import com.absk.rtrader.model.TickerData;
+import com.absk.rtrader.core.models.OHLC;
+import com.absk.rtrader.core.models.RealtimeStreamingSettings;
+import com.absk.rtrader.core.models.Ticker;
+import com.absk.rtrader.core.models.TickerData;
 import com.absk.rtrader.scheduler.CentralScheduler;
 import com.absk.rtrader.scheduler.tasks.MainTask;
 

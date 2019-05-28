@@ -6,9 +6,9 @@ import java.util.Date;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.absk.rtrader.model.OHLC;
-import com.absk.rtrader.model.Ticker;
-import com.absk.rtrader.model.TickerData;
+import com.absk.rtrader.core.models.OHLC;
+import com.absk.rtrader.core.models.Ticker;
+import com.absk.rtrader.core.models.TickerData;
 
 @Component
 @Scope(value = "singleton")

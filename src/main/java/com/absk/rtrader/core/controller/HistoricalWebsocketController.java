@@ -12,11 +12,11 @@ import org.springframework.stereotype.Controller;
 
 import com.absk.rtrader.core.TradingSession;
 import com.absk.rtrader.core.indicators.Renko;
+import com.absk.rtrader.core.models.HistoricalStreamingSettings;
+import com.absk.rtrader.core.models.OHLC;
+import com.absk.rtrader.core.models.Ticker;
+import com.absk.rtrader.core.models.TickerData;
 import com.absk.rtrader.exchange.upstox.Util;
-import com.absk.rtrader.model.HistoricalStreamingSettings;
-import com.absk.rtrader.model.OHLC;
-import com.absk.rtrader.model.Ticker;
-import com.absk.rtrader.model.TickerData;
 import com.absk.rtrader.utils.TickerUtil;
 
 @Controller

@@ -1,4 +1,4 @@
-package com.absk.rtrader.model;
+package com.absk.rtrader.core.models;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 

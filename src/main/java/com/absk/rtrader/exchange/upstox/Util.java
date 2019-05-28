@@ -16,10 +16,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.absk.rtrader.core.models.HistoricalAPIResponse;
+import com.absk.rtrader.core.models.OHLC;
+import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.exchange.upstox.utils.Cache;
-import com.absk.rtrader.model.HistoricalAPIResponse;
-import com.absk.rtrader.model.OHLC;
-import com.absk.rtrader.model.Ticker;
 import com.absk.rtrader.utils.ConfigUtil;
 import com.absk.rtrader.utils.TickerUtil;
 import com.google.gson.Gson;
