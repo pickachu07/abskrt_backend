@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.absk.rtrader.core.TradingSession;
+import com.absk.rtrader.core.constants.CoreConstants;
 import com.absk.rtrader.core.indicators.Renko;
 import com.absk.rtrader.core.models.OHLC;
 import com.absk.rtrader.core.models.Ticker;
@@ -35,7 +36,7 @@ public class UpstoxHistoricalDataController {
 	
 	
 	
-	@CrossOrigin(origins = "http://localhost:3000")
+	@CrossOrigin(origins = CoreConstants.FRONTEND_BASE_URI)
 	@GetMapping("/")
 	public ArrayList<Ticker> getData(){
 		
@@ -45,7 +46,7 @@ public class UpstoxHistoricalDataController {
 		return ts.getRenkoBricks();
 	}
 	
-	@CrossOrigin(origins = "http://localhost:3000")
+	@CrossOrigin(origins = CoreConstants.FRONTEND_BASE_URI)
 	@GetMapping("/trans")
 	public  Set<Cell<String, Integer, Double>> getTransactions(){
 		//OHLC[] data = upstoxUtil.getHistoricalOHLC();

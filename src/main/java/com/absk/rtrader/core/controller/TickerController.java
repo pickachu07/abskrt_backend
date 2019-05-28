@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.absk.rtrader.core.constants.CoreConstants;
 import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.core.repositories.TickerRepository;
 import com.absk.rtrader.core.schedulers.CentralScheduler;
@@ -85,14 +86,14 @@ public class TickerController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        return new ModelAndView("redirect:http://localhost:3000");
+        return new ModelAndView("redirect:"+CoreConstants.FRONTEND_BASE_URI);
     }
 	
 	 @GetMapping(value = "/disconnect")
 	    public ModelAndView wsDisconnect() {
 	        log.info("Triggered websocket disconnect request");
 	        upstoxWebSocketService.disconnect();
-	        return new ModelAndView("redirect:http://localhost:3000");
+	        return new ModelAndView("redirect:"+CoreConstants.FRONTEND_BASE_URI);
 	    }
 	
 }
