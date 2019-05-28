@@ -10,7 +10,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-import com.absk.rtrader.core.TradingSession;
+import com.absk.rtrader.core.services.TradingSession;
 import com.absk.rtrader.core.indicators.Renko;
 import com.absk.rtrader.core.models.HistoricalStreamingSettings;
 import com.absk.rtrader.core.models.OHLC;

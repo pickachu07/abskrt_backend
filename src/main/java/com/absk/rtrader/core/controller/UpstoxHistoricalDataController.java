@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.absk.rtrader.core.TradingSession;
 import com.absk.rtrader.core.constants.CoreConstants;
 import com.absk.rtrader.core.indicators.Renko;
 import com.absk.rtrader.core.models.OHLC;
 import com.absk.rtrader.core.models.Ticker;
+import com.absk.rtrader.core.services.TradingSession;
 import com.absk.rtrader.core.utils.TickerUtil;
 import com.absk.rtrader.exchange.upstox.Util;
 import com.google.common.collect.Table.Cell;
