@@ -45,17 +45,17 @@ public class TickerController {
 	
 	@GetMapping("/tickers/{dateInString}")
     public List<Ticker> getTickersByDate(@PathVariable String dateInString) {//format yyyy-mm-dd
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
-		Date date;
+		//SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
+		/*Date date;
 		try {
 			date = sdf.parse(dateInString);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
-			date = new Date();
+			date = new Date().toString();
 			e.printStackTrace();
 		}
-		
-        return tickerRepository.findByTimestampGreaterThan(date);
+		*/
+        return tickerRepository.findByTimestamp(dateInString);
     }
 	
 	
