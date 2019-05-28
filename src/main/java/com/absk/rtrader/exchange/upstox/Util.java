@@ -1,9 +1,5 @@
 package com.absk.rtrader.exchange.upstox;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,11 +16,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.absk.rtrader.model.AccessToken;
+import com.absk.rtrader.exchange.upstox.utils.Cache;
 import com.absk.rtrader.model.HistoricalAPIResponse;
 import com.absk.rtrader.model.OHLC;
 import com.absk.rtrader.model.Ticker;
-import com.absk.rtrader.repository.AccessTokenRepository;
 import com.absk.rtrader.utils.ConfigUtil;
 import com.absk.rtrader.utils.TickerUtil;
 import com.google.gson.Gson;
@@ -33,8 +28,11 @@ import com.google.gson.JsonObject;
 @Component
 public class Util {
 
-	@Autowired
+	/*@Autowired
 	AccessTokenRepository atr;
+	*/
+	@Autowired
+	Cache cache;
 	
 	@Autowired
 	ConfigUtil config;
@@ -46,9 +44,9 @@ public class Util {
 	RestTemplateBuilder restTemplateBuilder;
 	
 	private static final Logger logger = LoggerFactory.getLogger(Util.class);
-	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 	
-	public AccessToken saveAuthCode(String code) {
+	
+	/*blic AccessToken saveAuthCode(String code) {
 		
 		System.out.println("Api code:"+code);
 		String token =getAccessToken(code);
@@ -57,13 +55,15 @@ public class Util {
 		atr.deleteAll();
 		atr.save(accessToken);
 		return accessToken; 
-	}
+	}*/
 	
-	public boolean isAccessTokenValid() {
-		if((getCurrentAccessToken().length()>0 )&& (atr.getByDate(dateFormat.format(new Date())).size() > 0))return true;
+	/*public boolean isAccessTokenValid() {
+		if((getCurrentAccessToken().length()>0 )&&  (atr.getByDate(dateFormat.format(new Date())).size() > 0))return true;
+		cache.getAccessToken()cache.;
 		return false;
-	}
+	}*/
 	
+	@SuppressWarnings("unused")
 	private String getAccessToken(String code) {
 		RestTemplate restTemplate = new RestTemplate();
 		
@@ -102,10 +102,10 @@ public class Util {
 	 
 	
 	public String getCurrentAccessToken(){
-		List<AccessToken> tokenList = atr.getByDate(dateFormat.format(new Date()));
-		if(tokenList.size() ==  0)return "";
-		String token = tokenList.get(0).getCode();
-		return token;
+		//List<AccessToken> tokenList = atr.getByDate(dateFormat.format(new Date()));
+		//if(tokenList.size() ==  0)return "";
+		//String token = tokenList.get(0).getToken();
+		return cache.getAccessToken().get().getToken();
 		
 	}
 	public ModelAndView initAuthentication(){
@@ -138,10 +138,10 @@ public class Util {
 		HttpHeaders headers = new HttpHeaders();
 		String token = "";
 		headers.set("x-api-key", config.getApiKey());
-		if(!isAccessTokenValid()) {return null;}
-		else {
+		//if(!isAccessTokenValid()) {return null;}
+		//else {
 			token = getCurrentAccessToken();
-		}
+		//}
 		headers.setBearerAuth(token);
 		HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
         ResponseEntity<HistoricalAPIResponse> response = restTemplate.exchange("https://api.upstox.com/historical/nse_index/NIFTY_BANK/1?start_date=14-05-2019&end_date=14-05-2019",HttpMethod.GET,entity, HistoricalAPIResponse.class);//https://api.upstox.com/live/feed/now/nse_eq/SBIN/fullhttp://localhost:3000
