@@ -5,8 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,11 +20,12 @@ import com.absk.rtrader.repository.TickerRepository;
 import com.absk.rtrader.scheduler.CentralScheduler;
 import com.absk.rtrader.scheduler.tasks.MainTask;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 public class TickerController {
 	
-
-	private static final Logger log = LoggerFactory.getLogger(TickerController.class);
 	@Autowired
 	private TickerRepository tickerRepository;
 	
@@ -89,5 +89,12 @@ public class TickerController {
 		}
         return new ModelAndView("redirect:http://localhost:3000");
     }
+	
+	 @GetMapping(value = "/disconnect")
+	    public ModelAndView wsDisconnect() {
+	        log.info("Triggered websocket disconnect request");
+	        upstoxWebSocketService.disconnect();
+	        return new ModelAndView("redirect:http://localhost:3000");
+	    }
 	
 }
