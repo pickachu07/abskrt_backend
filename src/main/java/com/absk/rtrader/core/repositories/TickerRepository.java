@@ -1,4 +1,4 @@
-package com.absk.rtrader.repository;
+package com.absk.rtrader.core.repositories;
 
 import java.util.Date;
 import java.util.List;

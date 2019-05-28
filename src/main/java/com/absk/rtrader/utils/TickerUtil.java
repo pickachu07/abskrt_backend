@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import com.absk.rtrader.core.models.OHLC;
 import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.core.models.TickerData;
-import com.absk.rtrader.repository.TickerRepository;
+import com.absk.rtrader.core.repositories.TickerRepository;
 
 @Component
 public class TickerUtil {
