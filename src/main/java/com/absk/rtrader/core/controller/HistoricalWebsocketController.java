@@ -11,8 +11,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import com.absk.rtrader.core.TradingSession;
+import com.absk.rtrader.core.indicators.Renko;
 import com.absk.rtrader.exchange.upstox.Util;
-import com.absk.rtrader.indicators.Renko;
 import com.absk.rtrader.model.HistoricalStreamingSettings;
 import com.absk.rtrader.model.OHLC;
 import com.absk.rtrader.model.Ticker;

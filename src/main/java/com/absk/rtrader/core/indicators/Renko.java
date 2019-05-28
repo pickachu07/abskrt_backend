@@ -1,4 +1,4 @@
-package com.absk.rtrader.indicators;
+package com.absk.rtrader.core.indicators;
 
 import java.util.ArrayList;
 import java.util.Date;

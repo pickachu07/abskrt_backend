@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.absk.rtrader.core.Optimizer;
+import com.absk.rtrader.core.indicators.Renko;
 import com.absk.rtrader.exchange.upstox.Util;
-import com.absk.rtrader.indicators.Renko;
 import com.absk.rtrader.utils.TickerUtil;
 
 @RestController

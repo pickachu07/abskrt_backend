@@ -9,7 +9,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.absk.rtrader.indicators.Renko;
+import com.absk.rtrader.core.indicators.Renko;
 import com.absk.rtrader.model.OHLC;
 import com.absk.rtrader.model.Ticker;
 import com.absk.rtrader.utils.TickerUtil;
