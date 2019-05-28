@@ -1,4 +1,4 @@
-package com.absk.rtrader.controller;
+package com.absk.rtrader.core.controller;
 
 import java.util.ArrayList;
 import java.util.Set;

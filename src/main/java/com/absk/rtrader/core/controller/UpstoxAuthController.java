@@ -1,4 +1,4 @@
-package com.absk.rtrader.controller;
+package com.absk.rtrader.core.controller;
 
 import static com.absk.rtrader.core.constants.CoreConstants.FRONTEND_BASE_URI;
 import static com.absk.rtrader.core.constants.CoreConstants.FRONTEND_SETTINGS_URI;
