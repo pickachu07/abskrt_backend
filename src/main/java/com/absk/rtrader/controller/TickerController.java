@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,11 +13,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.absk.rtrader.exchange.upstox.services.UpstoxFeedServiceImpl;
 import com.absk.rtrader.exchange.upstox.services.UpstoxWebSocketService;
 import com.absk.rtrader.model.Ticker;
 import com.absk.rtrader.repository.TickerRepository;
 import com.absk.rtrader.scheduler.CentralScheduler;
-import com.absk.rtrader.scheduler.tasks.MainTask;
+
+import com.absk.rtrader.exchange.upstox.constants.FeedTypeConstants;
+import com.absk.rtrader.exchange.upstox.constants.ExchangeTypes;
+import com.absk.rtrader.exchange.upstox.constants.UpstoxTicker;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,6 +35,9 @@ public class TickerController {
 
 	@Autowired
     private UpstoxWebSocketService upstoxWebSocketService;
+	
+	@Autowired
+	private UpstoxFeedServiceImpl upstoxFeedService;
 	
 	@GetMapping("/tickers")
     public Page<Ticker> getTickers(Pageable pageable) {
@@ -61,16 +67,10 @@ public class TickerController {
 	
 	
 	
-	@GetMapping("/start")
-	public void startScheduler() {
-		Runnable task = new MainTask(0, null);
-		try {
-			CentralScheduler.getInstance().start(task,"* * * ? * *");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	@GetMapping("/subscribe")
+	public boolean subscribe() {
 		
+		return upstoxFeedService.subscribeToTicker(UpstoxTicker.BANK_NIFTY, FeedTypeConstants.FEEDTYPE_FULL);
 	}
 	
 	@GetMapping("/stop")
