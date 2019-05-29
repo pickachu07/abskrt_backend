@@ -26,15 +26,14 @@ public class WebsocketController {
     //@MessageMapping("/hello")
     @SendTo("/topic/ticker_stream")
     public OHLC pushToSocket(Ticker tick) throws Exception {
-        //Thread.sleep(1000); // simulated delay
         TickerData data = tick.getData();
-        log.info("data is:"+data.toString());
+        //log.debug("data is:"+data.toString());
     	return new OHLC(data.getOpen(),data.getHigh(),data.getLow(),data.getClose(),data.getVolume(),data.getTimestamp());
     }
     
     @MessageMapping("/start_streaming")
     public void StartStreaming(RealtimeStreamingSettings rSS) {
-    	log.info("message received:");
+    	//log.info("message received:");
     	
     	Runnable task = new MainTask(rSS.getBrick_size(),rSS.getTicker_name());
     	applicationContext.getAutowireCapableBeanFactory().autowireBean(task);
