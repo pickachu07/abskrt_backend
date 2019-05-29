@@ -82,7 +82,7 @@ public class Renko {
 				double currRenClose = currRenOpen+this.brickSize;
 				//create current renko brick in ticker
 				TickerData currData = new TickerData(currRenOpen,currRenClose,currRenOpen,currRenClose,0,timestamp,"NSE_EQ","",0,0);
-				Ticker currTick = new Ticker("Renko", currData,new Date(timestamp*1000));
+				Ticker currTick = new Ticker("Renko-Pos", currData,new Date(timestamp*1000));
 				tickerArray.add(tempRenkoBrickCount, currTick);
 				//add 1 to bricktype array
 				brickTypeArray.add(tempRenkoBrickCount,1);
@@ -101,7 +101,7 @@ public class Renko {
 				double currRenClose = currRenOpen-this.brickSize;
 				//create current renko brick in ticker
 				TickerData currData = new TickerData(currRenOpen,currRenOpen,currRenClose,currRenClose,0,timestamp,"NSE_EQ","",0,0);
-				Ticker currTick = new Ticker("Renko", currData,new Date(timestamp*1000));
+				Ticker currTick = new Ticker("Renko-Neg", currData,new Date(timestamp*1000));
 				tickerArray.add(tempRenkoBrickCount, currTick);
 				//add 0 to bricktype array
 				brickTypeArray.add(tempRenkoBrickCount,0);
