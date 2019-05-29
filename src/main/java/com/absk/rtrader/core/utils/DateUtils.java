@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+//make proper use of this 
 public final class DateUtils {    
 
     public static final String DB_FORMAT_DATETIME = "yyyy-MM-dd";        
