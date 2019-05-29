@@ -16,6 +16,9 @@ public interface TickerRepository extends MongoRepository<Ticker, Long>, TickerR
 	
 	List<Ticker> findAll();
 	
+	@SuppressWarnings("unchecked")
+	Ticker save(Ticker tick);
+	
 	
 	
 }
