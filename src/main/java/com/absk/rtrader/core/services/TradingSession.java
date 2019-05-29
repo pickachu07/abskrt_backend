@@ -21,7 +21,6 @@ import com.google.common.collect.Table.Cell;
 @Component
 public class TradingSession {
 
-	
 	@Autowired
 	private Renko renko;
 	
@@ -193,6 +192,25 @@ public class TradingSession {
 	}
 	public Set<Cell<String, Integer, Double>> getTransactions(){
 		return this.orders.cellSet();
+	}
+	
+	public String getTickerName() {
+		return tickerName;
+	}
+	public void setTickerName(String tickerName) {
+		this.tickerName = tickerName;
+	}
+	public int getSessionType() {
+		return sessionType;
+	}
+	public void setSessionType(int sessionType) {
+		this.sessionType = sessionType;
+	}
+	public float getBrickSize() {
+		return brickSize;
+	}
+	public void setBrickSize(float brickSize) {
+		this.brickSize = brickSize;
 	}
 	
 }
