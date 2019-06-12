@@ -25,6 +25,9 @@ public class OptimizationService {
 	@Autowired
 	Renko renko;
 	
+	@Autowired
+	TimeframeTransformationService tss;
+	
 	private String tickerName;
 	private long brick_size_start;
 	private long brick_size_end;

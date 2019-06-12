@@ -41,6 +41,7 @@ public class TimeframeTransformationService {
 		
 		if(tickCount==0) {
 			this.open = tick.getData().getOpen();
+			this.openTimestamp = tick.getData().getTimestamp();
 			this.high = tick.getData().getHigh();
 			this.low = tick.getData().getLow();
 		}
@@ -50,25 +51,31 @@ public class TimeframeTransformationService {
 		if(tick.getData().getHigh() > this.high){
 			this.high = tick.getData().getHigh();
 		}
-		if(tickCount>=this.destinationTimeframe) {
+		if(tickCount>=(this.destinationTimeframe/this.sourceTimeframe)) {
 			this.close = tick.getData().getClose();
-			
-			return generateNewTickAndResetParams(open,high,low,close);
+			this.closeTimestamp = tick.getData().getTimestamp();
+			incrementTickCount();
+			return generateNewTickAndResetParams(open,high,low,close,this.closeTimestamp);
 		}
-		
+		incrementTickCount();
 		return null;
 	}
 	
-	private Ticker generateNewTickAndResetParams(double o,double h,double l,double c) {
-		TickerData data = new TickerData(o,h,l,c,0.0,this.closeTimestamp,tickerName,"", 0.0,0.0);
+	private void incrementTickCount() {
+		this.tickCount++;
+	}
+	
+	private Ticker generateNewTickAndResetParams(double o,double h,double l,double c,long t) {
+		TickerData data = new TickerData(o,h,l,c,0.0,t,tickerName,"", 0.0,0.0);
 		Ticker tick = new Ticker("Transformed time ticker",data,new Date(this.closeTimestamp));
 		resetWorkingVars();
+		
 		return tick;
 		
 	}
 	
 	private void resetWorkingVars(){
-		this.open=0F;
+		this.open=this.close;
 		this.close=0F;
 		this.high=0F;
 		this.low=0F;
