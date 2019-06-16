@@ -22,9 +22,36 @@ public class TickerRepositoryImpl implements TickerRepositoryCustom {
 		this.mongoTemplate = mongoTemplate;
 	}
 	
+	public List<Ticker> findByDateTimeAndTicker(String date, String ticker, String startTime, String endTime){
+		final Query query = new Query();
+		final DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date startDate;
+		Date endDate;
+		
+		try {
+			startDate = formatter.parse(date+" "+startTime);
+			endDate   = formatter.parse(date+" "+endTime);
+		} catch (ParseException e) {
+			startDate = new Date();
+			endDate = new Date();
+			e.printStackTrace();
+		}
+		
+		if(date != null) {
+			query.addCriteria(Criteria.where("timestamp").ne(null).andOperator(
+	                Criteria.where("timestamp").gte(startDate),
+	                Criteria.where("timestamp").lte(endDate),
+	                Criteria.where("data.symbol").is(ticker)
+	            ));
+			
+		}
+		
+		return mongoTemplate.find(query, Ticker.class);
+	}
+	
+	
 	@Override
 	public List<Ticker> findByTimestamp(String date) {
-		//TODO: add findByTickerAndTimestamp method
 		final Query query = new Query();
 		final DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date startDate;
@@ -48,5 +75,42 @@ public class TickerRepositoryImpl implements TickerRepositoryCustom {
 		
 		return mongoTemplate.find(query, Ticker.class);
 	}
+	
+	@Override
+	public List<Ticker> findByTimestampAndTicker(String date,String ticker) {
+		
+		final Query query = new Query();
+		final DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date startDate;
+		Date endDate;
+		
+		try {
+			startDate = formatter.parse(date+" 00:00:00");
+			endDate   = formatter.parse(date+" 23:00:00");
+		} catch (ParseException e) {
+			startDate = new Date();
+			endDate = new Date();
+			e.printStackTrace();
+		}
+		
+		if(date != null) {
+			query.addCriteria(Criteria.where("timestamp").ne(null).andOperator(
+	                Criteria.where("timestamp").gte(startDate),
+	                Criteria.where("timestamp").lte(endDate),
+	                Criteria.where("data.symbol").is(ticker)
+	            ));
+			
+		}
+		
+		return mongoTemplate.find(query, Ticker.class);
+	}
+
+	@Override
+	public List<Ticker> findAll() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
 
 }

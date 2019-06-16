@@ -183,7 +183,7 @@ public class TradingSession {
 				this.lastCalculatedTrade = this.orderCount;
 			}		
 			}
-		System.out.println("Profit till now:"+tempProfit+":: oc:"+this.orderCount);
+		//System.out.println("Profit till now:"+tempProfit+":: oc:"+this.orderCount);
 		return this.tempProfit;
 	}
 	

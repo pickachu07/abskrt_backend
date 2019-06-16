@@ -12,7 +12,11 @@ public interface TickerRepository extends MongoRepository<Ticker, Long>, TickerR
 
 	//List<Ticker> findByTimestampGreaterThan(Date timestamp);
 	
-	//List<Ticker> findByTimestamp(Date timestamp);
+	List<Ticker> findByTimestamp(String timestamp);
+	
+	List<Ticker> findByTimestampAndTicker(String timestamp, String ticker);
+	
+	//List<Ticker> findByDateAndTickerAndTimeperiod(String date, String ticker,String timeStart,String timeEnd);
 	
 	List<Ticker> findAll();
 	

@@ -3,8 +3,6 @@ package com.absk.rtrader.core.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,7 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.absk.rtrader.core.constants.CoreConstants;
 import com.absk.rtrader.core.models.Ticker;
-import com.absk.rtrader.core.repositories.TickerRepository;
+import com.absk.rtrader.core.repositories.TickerRepositoryCustom;
 import com.absk.rtrader.exchange.upstox.constants.FeedTypeConstants;
 import com.absk.rtrader.exchange.upstox.constants.UpstoxTicker;
 import com.absk.rtrader.exchange.upstox.services.UpstoxFeedServiceImpl;
@@ -26,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TickerController {
 
 	@Autowired
-	private TickerRepository tickerRepository;
+	private TickerRepositoryCustom tickerRepository;
 
 	@Autowired
 	private UpstoxWebSocketService upstoxWebSocketService;
@@ -36,14 +34,27 @@ public class TickerController {
 
 	@CrossOrigin(origins = CoreConstants.FRONTEND_BASE_URI)
 	@GetMapping("/tickers")
-	public Page<Ticker> getTickers(Pageable pageable) {
-		return tickerRepository.findAll(pageable);
+	public List<Ticker> getTickers() {
+		return tickerRepository.findAll();
 	}
 
 	@CrossOrigin(origins = CoreConstants.FRONTEND_BASE_URI)
 	@GetMapping("/tickers/{dateInString}")
 	public List<Ticker> getTickersByDate(@PathVariable String dateInString) {// format yyyy-mm-dd
 		return tickerRepository.findByTimestamp(dateInString);
+	}
+	
+	@CrossOrigin(origins = CoreConstants.FRONTEND_BASE_URI)
+	@GetMapping("/tickers/{dateInString}/{ticker}/{startTime}/{endTime}")
+	public List<Ticker> getTickersByDateTime(@PathVariable String dateInString, @PathVariable String ticker, @PathVariable String startTime,@PathVariable String endTime) {// format yyyy-mm-dd
+		return tickerRepository.findByDateTimeAndTicker(dateInString, ticker, startTime, endTime);
+	}
+	
+	
+	@CrossOrigin(origins = CoreConstants.FRONTEND_BASE_URI)
+	@GetMapping("/tickers/{dateInString}/{ticker}")
+	public List<Ticker> getTickersByDate(@PathVariable String dateInString, @PathVariable String ticker) {// format yyyy-mm-dd
+		return tickerRepository.findByTimestampAndTicker(dateInString,ticker);
 	}
 
 	@CrossOrigin(origins = CoreConstants.FRONTEND_BASE_URI)
