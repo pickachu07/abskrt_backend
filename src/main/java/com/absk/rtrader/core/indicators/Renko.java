@@ -26,7 +26,7 @@ public class Renko {
 	private double currRenOpen;
 	
 	
-	private Renko() {
+	public Renko() {
 		ro = new ArrayList<Double>();
 		rc = new ArrayList<Double>();
 		brickTypeArray = new ArrayList<Integer>();

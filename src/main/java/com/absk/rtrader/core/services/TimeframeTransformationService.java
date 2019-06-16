@@ -41,7 +41,6 @@ public class TimeframeTransformationService {
 		
 		if(tickCount==0) {
 			this.open = tick.getData().getOpen();
-			this.openTimestamp = tick.getData().getTimestamp();
 			this.high = tick.getData().getHigh();
 			this.low = tick.getData().getLow();
 		}
@@ -53,9 +52,8 @@ public class TimeframeTransformationService {
 		}
 		if(tickCount>=(this.destinationTimeframe/this.sourceTimeframe)) {
 			this.close = tick.getData().getClose();
-			this.closeTimestamp = tick.getData().getTimestamp();
 			incrementTickCount();
-			return generateNewTickAndResetParams(open,high,low,close,this.closeTimestamp);
+			return generateNewTickAndResetParams(open,high,low,close,tick.getData().getTimestamp());
 		}
 		incrementTickCount();
 		return null;
@@ -67,7 +65,7 @@ public class TimeframeTransformationService {
 	
 	private Ticker generateNewTickAndResetParams(double o,double h,double l,double c,long t) {
 		TickerData data = new TickerData(o,h,l,c,0.0,t,tickerName,"", 0.0,0.0);
-		Ticker tick = new Ticker("Transformed time ticker",data,new Date(this.closeTimestamp));
+		Ticker tick = new Ticker("Transformed time ticker",data,new Date(t));
 		resetWorkingVars();
 		
 		return tick;
@@ -81,6 +79,7 @@ public class TimeframeTransformationService {
 		this.low=0F;
 		this.openTimestamp = 0L;
 		this.closeTimestamp=0L;
+		this.tickCount = 0L;
 	}
 
 	public int getSourceTimeframe() {
