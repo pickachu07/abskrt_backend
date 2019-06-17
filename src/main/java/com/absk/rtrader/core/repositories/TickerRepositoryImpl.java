@@ -54,22 +54,22 @@ public class TickerRepositoryImpl implements TickerRepositoryCustom {
 	public List<Ticker> findByTimestamp(String date) {
 		final Query query = new Query();
 		final DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Date startDate;
-		Date endDate;
+		Long startDate;
+		Long endDate;
 		
 		try {
-			startDate = formatter.parse(date+" 00:00:00");
-			endDate   = formatter.parse(date+" 23:00:00");
+			startDate = formatter.parse(date+" 00:00:00").getTime();
+			endDate   = formatter.parse(date+" 23:00:00").getTime();
 		} catch (ParseException e) {
-			startDate = new Date();
-			endDate = new Date();
+			startDate = new Date().getTime();
+			endDate = new Date().getTime();
 			e.printStackTrace();
 		}
 		
 		if(date != null) {
-			query.addCriteria(Criteria.where("timestamp").ne(null).andOperator(
-	                Criteria.where("timestamp").gte(startDate),
-	                Criteria.where("timestamp").lte(endDate)
+			query.addCriteria(Criteria.where("data.timestamp").ne(null).andOperator(
+	                Criteria.where("data.timestamp").gte(startDate),
+	                Criteria.where("data.timestamp").lte(endDate)
 	            ));
 		}
 		
