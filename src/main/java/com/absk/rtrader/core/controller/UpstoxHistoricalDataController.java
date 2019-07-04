@@ -6,6 +6,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,17 +36,16 @@ public class UpstoxHistoricalDataController {
 	@Autowired
 	TradingSession ts;
 	
-	//@Autowired
-	//TimeframeTransformationService tss;
+	@Autowired
+	TimeframeTransformationService tss;
 	
 	@CrossOrigin(origins = CoreConstants.FRONTEND_BASE_URI)
-	@GetMapping("/")
-	public ArrayList<Ticker> getOrigData(){
+	@GetMapping("/{queryDate}/{bs}")
+	public ArrayList<Ticker> getOrigData(@PathVariable String queryDate,@PathVariable String bs){
 		
 		ArrayList<Ticker> tickArr = new ArrayList<Ticker>();
-		OHLC[] data = upstoxUtil.getHistoricalOHLC();
-		//TradingSession ts = new TradingSession();
-		//ts.processAllData(data,4);//TODO: add brick size and ticker as params
+		OHLC[] data = upstoxUtil.getHistoricalOHLC(queryDate);
+		ts.processAllData(data,Double.parseDouble(bs));//TODO: add brick size and ticker as params
 		for(int i=0;i<data.length;i++){
 			Ticker tick = util.convertToTicker(data[i]);
 			if(tick != null) {
@@ -53,20 +53,21 @@ public class UpstoxHistoricalDataController {
 				tick= null;
 			}
 		}
-		//return ts.getRenkoBricks();
-		return tickArr;
+		ArrayList<Ticker> renkoBricks =ts.getRenkoBricks();
+		ts.reset();
+		return renkoBricks;
 	}
 	
 	
 	@CrossOrigin(origins = CoreConstants.FRONTEND_BASE_URI)
-	@GetMapping("/transform")
-	public ArrayList<Ticker> getData(){
+	@GetMapping("/transform/{queryDate}")
+	public ArrayList<Ticker> getData(@PathVariable String queryDate){
 		
 		ArrayList<Ticker> tickArr = new ArrayList<Ticker>();
-		OHLC[] data = upstoxUtil.getHistoricalOHLC();
+		OHLC[] data = upstoxUtil.getHistoricalOHLC(queryDate);
 		//TradingSession ts = new TradingSession();
 		//ts.processAllData(data,4);//TODO: add brick size and ticker as params
-		TimeframeTransformationService tss = new TimeframeTransformationService();
+		//TimeframeTransformationService tss = new TimeframeTransformationService();
 		tss.setSourceTimeframe(60);
 		tss.setDestinationTimeframe(600);
 		for(int i=0;i<data.length;i++){
@@ -84,7 +85,6 @@ public class UpstoxHistoricalDataController {
 	@GetMapping("/trans")
 	public  Set<Cell<String, Integer, Double>> getTransactions(){
 		//OHLC[] data = upstoxUtil.getHistoricalOHLC();
-		//TradingSession ts = new TradingSession();
 		//ts.processAllData(data);
 		return ts.getTransactions();
 	}

@@ -1,6 +1,8 @@
 package com.absk.rtrader.core.services;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -11,8 +13,8 @@ import com.absk.rtrader.exchange.upstox.constants.UpstoxTicker;
 @Service
 public class TimeframeTransformationService {
 
-	private int sourceTimeframe;
-	private double destinationTimeframe;
+	private long sourceTimeframe;
+	private long destinationTimeframe;
 	private String tickerName;
 	
 	private double open;
@@ -23,7 +25,7 @@ public class TimeframeTransformationService {
 	private long closeTimestamp;
 	private long tickCount;
 	
-	public TimeframeTransformationService(int sourceTimeframe, double destinationTimeframe, String tickerName) {
+	public TimeframeTransformationService(long sourceTimeframe, long destinationTimeframe, String tickerName) {
 		super();
 		this.sourceTimeframe = sourceTimeframe;
 		this.destinationTimeframe = destinationTimeframe;
@@ -35,6 +37,18 @@ public class TimeframeTransformationService {
 		this.sourceTimeframe = 1;//in seconds
 		this.destinationTimeframe = 10;
 		this.tickerName= UpstoxTicker.BANK_NIFTY;
+	}
+	
+	public List<Ticker> transform(List<Ticker> sourceTickerList){
+		
+		List<Ticker> transformedTickerList = new ArrayList<Ticker>();
+		for(int i=0;i<sourceTickerList.size();i++) {
+			Ticker transformedTick = transform(sourceTickerList.get(i));
+			if(transformedTick!=null) {
+				transformedTickerList.add(transformedTick);
+			}
+		}
+		return transformedTickerList;
 	}
 	
 	public Ticker transform(Ticker tick) {
@@ -50,7 +64,7 @@ public class TimeframeTransformationService {
 		if(tick.getData().getHigh() > this.high){
 			this.high = tick.getData().getHigh();
 		}
-		if(tickCount>=(this.destinationTimeframe/this.sourceTimeframe)) {
+		if(tickCount>=(this.destinationTimeframe/this.sourceTimeframe)-1) {
 			this.close = tick.getData().getClose();
 			incrementTickCount();
 			return generateNewTickAndResetParams(open,high,low,close,tick.getData().getTimestamp());
@@ -82,11 +96,11 @@ public class TimeframeTransformationService {
 		this.tickCount = 0L;
 	}
 
-	public int getSourceTimeframe() {
+	public long getSourceTimeframe() {
 		return sourceTimeframe;
 	}
 
-	public void setSourceTimeframe(int sourceTimeframe) {
+	public void setSourceTimeframe(long sourceTimeframe) {
 		this.sourceTimeframe = sourceTimeframe;
 	}
 
@@ -94,7 +108,7 @@ public class TimeframeTransformationService {
 		return destinationTimeframe;
 	}
 
-	public void setDestinationTimeframe(double destinationTimeframe) {
+	public void setDestinationTimeframe(long destinationTimeframe) {
 		this.destinationTimeframe = destinationTimeframe;
 	}
 
