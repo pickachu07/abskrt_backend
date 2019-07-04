@@ -1,5 +1,6 @@
 package com.absk.rtrader.exchange.upstox;
 
+
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,15 +17,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.absk.rtrader.exchange.upstox.models.HistoricalAPIResponse;
 import com.absk.rtrader.core.models.OHLC;
 import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.core.utils.ConfigUtil;
+import com.absk.rtrader.core.utils.DateUtils;
 import com.absk.rtrader.core.utils.TickerUtil;
+import com.absk.rtrader.exchange.upstox.constants.ExchangeTypes;
+import com.absk.rtrader.exchange.upstox.constants.UpstoxTicker;
+import com.absk.rtrader.exchange.upstox.models.HistoricalAPIResponse;
 import com.absk.rtrader.exchange.upstox.utils.Cache;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
 @Component
 public class Util {
 
@@ -133,8 +138,9 @@ public class Util {
         
         
 	}
-	public OHLC[] getHistoricalOHLC() {
+	public OHLC[] getHistoricalOHLC(String exchange, String ticker, String inDate) {
 		RestTemplate restTemplate = new RestTemplate();
+		
 		HttpHeaders headers = new HttpHeaders();
 		String token = "";
 		headers.set("x-api-key", config.getApiKey());
@@ -142,12 +148,18 @@ public class Util {
 		//else {
 			token = getCurrentAccessToken();
 		//}
+			
 		headers.setBearerAuth(token);
 		HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
-        ResponseEntity<HistoricalAPIResponse> response = restTemplate.exchange("https://api.upstox.com/historical/nse_index/NIFTY_BANK/1?start_date=14-05-2019&end_date=14-05-2019",HttpMethod.GET,entity, HistoricalAPIResponse.class);//https://api.upstox.com/live/feed/now/nse_eq/SBIN/fullhttp://localhost:3000
+        ResponseEntity<HistoricalAPIResponse> response = restTemplate.exchange("https://api.upstox.com/historical/"+exchange+"/"+ticker+"/1?start_date="+inDate+"&end_date="+inDate,HttpMethod.GET,entity, HistoricalAPIResponse.class);//https://api.upstox.com/live/feed/now/nse_eq/SBIN/fullhttp://localhost:3000
         HistoricalAPIResponse apiResponse = (HistoricalAPIResponse) response.getBody();
 		
 		return apiResponse.getData();
+	}
+	
+	public OHLC[] getHistoricalOHLC(String inDate) {
+		
+		return getHistoricalOHLC(ExchangeTypes.NSE_INDEX,UpstoxTicker.BANK_NIFTY,DateUtils.convertDateFormat("yyyy-MM-dd", "dd-MM-yyyy", inDate));
 	}
 	
 	

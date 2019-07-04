@@ -9,6 +9,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import com.absk.rtrader.core.services.TradingSession;
 import com.absk.rtrader.core.indicators.Renko;
@@ -43,11 +44,11 @@ public class HistoricalWebsocketController {
     }
     
     
-    @MessageMapping("/StartHistoricalDataStream")
-    public void StartStreaming(HistoricalStreamingSettings hSS) throws InterruptedException {
+    @MessageMapping("/StartHistoricalDataStream/{queryDate}")
+    public void StartStreaming(HistoricalStreamingSettings hSS,@PathVariable String queryDate) throws InterruptedException {
     	log.info("message received from historical pane:");
     	Util upstoxUtil = new Util();
-    	OHLC[] data = upstoxUtil.getHistoricalOHLC();
+    	OHLC[] data = upstoxUtil.getHistoricalOHLC(queryDate);
     	TradingSession ts = new TradingSession();
 		Renko rInstance = r.getInstance();
 		double brickSize = 2;
