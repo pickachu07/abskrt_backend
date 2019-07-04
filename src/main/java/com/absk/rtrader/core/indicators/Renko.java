@@ -11,7 +11,6 @@ import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.core.models.TickerData;
 
 @Component
-@Scope(value = "singleton")
 public class Renko {
 
 	private double brickSize;
@@ -45,7 +44,7 @@ public class Renko {
 	}
 	
 	
-	public void setBrickSize(int bs) {
+	public void setBrickSize(long bs) {
 		this.brickSize = bs;
 	}
 	public double getBrickSize() {
