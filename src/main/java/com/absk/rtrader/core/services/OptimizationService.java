@@ -2,6 +2,7 @@ package com.absk.rtrader.core.services;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +22,6 @@ public class OptimizationService {
 	@Autowired
 	TickerUtil tickerUtil;
 	
-	@Autowired
-	Renko renko;
-	
-	//@Autowired
-	//TimeframeTransformationService tss;
 	
 	private String tickerName;
 	private long brick_size_start;
@@ -33,14 +29,17 @@ public class OptimizationService {
 	private int brick_size_incriment;
 	private long timeframeStart;
 	private long timeframeEnd;
-	private long timeframeIncrement;
+	private int timeframeIncrement;
 	
-	public OptimizationService(String tickerName, long brick_size_start, long brick_size_end, int brick_size_incriment) {
+	public OptimizationService(String tickerName, long brick_size_start, long brick_size_end, long timeframeStart, long timeframeEnd) {
 		super();
 		this.tickerName = tickerName;
 		this.brick_size_start = brick_size_start;
 		this.brick_size_end = brick_size_end;
-		this.brick_size_incriment = brick_size_incriment;
+		this.brick_size_incriment = 1;
+		this.timeframeStart=timeframeStart;
+		this.timeframeEnd=timeframeEnd;
+		this.timeframeIncrement=10;
 	}
 	
 	public OptimizationService() {
@@ -53,27 +52,38 @@ public class OptimizationService {
 		this.timeframeIncrement=60;
 	}
 	
-	public long optimize(ArrayList<Ticker> tickers) {
+	public long optimize(List<Ticker> data) {
 		
 		HashMap<Long,Double> profitTable = new HashMap<Long,Double>();
 		HashMap<Long,HashMap<Long,Double>> timeframeProfitTable = new HashMap<Long,HashMap<Long,Double>>();
 		//Renko rInstance = renko.getInstance();
 		TradingSession session = null;
 		for(long currentTimeframe=this.timeframeStart;currentTimeframe<=this.timeframeEnd;currentTimeframe=(currentTimeframe + this.timeframeIncrement)) {
+			
+			TimeframeTransformationService tss = new TimeframeTransformationService(this.timeframeStart,currentTimeframe,this.tickerName);
+			List<Ticker> transformedData = tss.transform(data);
+			
 			for(long currentBrickSize = this.brick_size_start; currentBrickSize < brick_size_end;currentBrickSize+=this.brick_size_incriment) {
-				session = new TradingSession(this.tickerName,1,this.brick_size_start);
+				
+				session = new TradingSession(this.tickerName,1,currentBrickSize);
+	
 				ArrayList<Ticker> tickArr = null;
-				for(int i=0;i<tickers.size();i++) {
-					
-					tickArr = renko.drawRenko(tickers.get(i),currentBrickSize);
-		    		session.processData(tickArr);
-		    		session.calculateProfit();
-		    		tickArr = null;
+				Renko renko = new Renko();
+				renko.setBrickSize(currentBrickSize);
+				for(int i=0;i<transformedData.size();i++) {
+					if(transformedData.get(i)!= null) {
+						tickArr = renko.drawRenko(transformedData.get(i),currentBrickSize);
+			    		session.processData(tickArr);
+			    		session.calculateProfit();
+			    		tickArr = null;
+					}	
 				}
 				profitTable.put(currentBrickSize, session.getProfit());
 				
 				System.out.println("timeframe: "+currentTimeframe+" brickSize: "+currentBrickSize+" profit: "+session.getProfit());
+				session.resetTempProfit(); 
 				session = null;
+				renko = null;
 			}
 			timeframeProfitTable.put(currentTimeframe, profitTable);
 			profitTable.clear();
@@ -109,7 +119,7 @@ public class OptimizationService {
 		return timeframeIncrement;
 	}
 
-	public void setTimeframeIncrement(long timeframeIncrement) {
+	public void setTimeframeIncrement(int timeframeIncrement) {
 		this.timeframeIncrement = timeframeIncrement;
 	}
 
