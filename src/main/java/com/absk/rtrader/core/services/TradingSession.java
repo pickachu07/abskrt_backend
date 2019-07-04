@@ -84,15 +84,16 @@ public class TradingSession {
 		
 		ArrayList<Ticker> tickArr;
 		
-		Renko rInstance = renko.getInstance();
+		//Renko rInstance = renko.getInstance();
 		for(int i=0;i<data.length;i++) {
     		
     		System.out.println("Historical data:"+data[i].getClose());
     		Ticker tick = tickerUtil.convertToTicker(data[i]);
-    		tickArr = rInstance.drawRenko(tick,bs);
+    		tickArr = renko.drawRenko(tick,bs);
     		processData(tickArr);
     		calculateProfit();
-    		tickArr = null;
+    		rb.addAll(tickArr);
+    		tickArr = null;	
     	}
 		return this.tempProfit;
 	}
@@ -110,7 +111,7 @@ public class TradingSession {
 					if(this.last_signal_type != 1) { //last signal not buy(1) --> last signal sell(0) or null(-1)
 						//buy Signal
 						registerBuyOpt(ohlc.get(brickCount-1).getData().getClose(),new Date(ohlc.get(brickCount-1).getData().getTimestamp()));
-						//System.out.println("Signal:Buy :: last signal is not buy at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+":: Single Brick generated"+brickCount +" at price:"+ohlc.get(brickCount-1).getData().getClose());
+						System.out.println("Signal:Buy :: last signal is not buy at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+":: Single Brick generated"+brickCount +" at price:"+ohlc.get(brickCount-1).getData().getClose());
 						
 						this.last_signal_type = 1;//set last signal as sell(0)		
 					}	
@@ -125,7 +126,7 @@ public class TradingSession {
 						//sell Signal
 						registerSellOpt(ohlc.get(brickCount-1).getData().getClose(),new Date(ohlc.get(brickCount-1).getData().getTimestamp()));
 						
-						//System.out.println("Signal:Sell :: last signal is not sell at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+" :: Single Brick generated"+brickCount +" at price:"+ohlc.get(brickCount-1).getData().getClose());
+						System.out.println("Signal:Sell :: last signal is not sell at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+" :: Single Brick generated"+brickCount +" at price:"+ohlc.get(brickCount-1).getData().getClose());
 						this.last_signal_type = 0;//set last signal as sell(0)		
 					}	
 					this.buffer_signal_type = -1;//reset buffer
@@ -140,7 +141,7 @@ public class TradingSession {
 				if(this.last_signal_type != 1) { //last signal not buy(1) --> last signal sell(0) or null(-1)
 					//Buy Signal
 					registerBuyOpt(ohlc.get(brickCount-1).getData().getClose(),new Date(ohlc.get(brickCount-1).getData().getTimestamp()));
-					//System.out.println("Signal:Buy at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+":: More than 1 Brick generated"+brickCount +" at price"+ohlc.get(brickCount-1).getData().getClose());
+					System.out.println("Signal:Buy at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+":: More than 1 Brick generated"+brickCount +" at price"+ohlc.get(brickCount-1).getData().getClose());
 					this.last_signal_type = 1;//set last signal as Buy(1)
 				}
 			}else {//negetive brick
@@ -183,7 +184,7 @@ public class TradingSession {
 				this.lastCalculatedTrade = this.orderCount;
 			}		
 			}
-		//System.out.println("Profit till now:"+tempProfit+":: oc:"+this.orderCount);
+		System.out.println("Profit till now:"+tempProfit+":: oc:"+this.orderCount);
 		return this.tempProfit;
 	}
 	
@@ -211,6 +212,19 @@ public class TradingSession {
 	}
 	public void setBrickSize(float brickSize) {
 		this.brickSize = brickSize;
+	}
+	public void resetTempProfit() {
+		this.tempProfit=0;
+	}
+	public void reset() {
+		this.brickSize = 10;//make it configurable
+		this.orderCount = 0;
+		orders = HashBasedTable.create();
+		rb = new ArrayList<Ticker>();
+		this.last_signal_type = -1;
+		this.buffer_signal_type = -1;
+		this.lastCalculatedTrade =0;
+		this.tempProfit = 0.0;
 	}
 	
 }
