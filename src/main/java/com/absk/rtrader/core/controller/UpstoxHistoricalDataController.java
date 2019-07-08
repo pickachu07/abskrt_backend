@@ -45,17 +45,16 @@ public class UpstoxHistoricalDataController {
 		
 		ArrayList<Ticker> tickArr = new ArrayList<Ticker>();
 		OHLC[] data = upstoxUtil.getHistoricalOHLC(queryDate);
-		ts.processAllData(data,Double.parseDouble(bs));//TODO: add brick size and ticker as params
-		for(int i=0;i<data.length;i++){
-			Ticker tick = util.convertToTicker(data[i]);
-			if(tick != null) {
-				tickArr.add(tick);
-				tick= null;
-			}
-		}
-		ArrayList<Ticker> renkoBricks =ts.getRenkoBricks();
-		ts.reset();
-		return renkoBricks;
+		ArrayList<Double> renkoPrices = ts.processAllData(data,Double.parseDouble(bs));
+		
+		return util.renkoPricesToTickerArray(renkoPrices, "NSE INDEX", "NIFTYBANK");
+		
+		/*
+		 * for(int i=0;i<data.length;i++){ Ticker tick = util.convertToTicker(data[i]);
+		 * if(tick != null) { tickArr.add(tick); tick= null; } } ArrayList<Ticker>
+		 * renkoBricks =ts.getRenkoBricks(); ts.reset();
+		 */
+		
 	}
 	
 	
