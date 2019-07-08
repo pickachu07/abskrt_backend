@@ -9,7 +9,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.absk.rtrader.core.indicators.Renko;
+import com.absk.rtrader.core.indicators.NRenko;
 import com.absk.rtrader.core.models.OHLC;
 import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.core.utils.TickerUtil;
@@ -22,7 +22,7 @@ import com.google.common.collect.Table.Cell;
 public class TradingSession {
 
 	@Autowired
-	private Renko renko;
+	private NRenko renko;
 	
 	@Autowired
 	private TickerUtil tickerUtil;
@@ -80,11 +80,16 @@ public class TradingSession {
 		return this.tempProfit;
 	}
 	
-	public double processAllData(OHLC[] data,double bs) {
+	public ArrayList<Double> processAllData(OHLC[] data,double bs) {
 		
-		ArrayList<Ticker> tickArr;
+		ArrayList<Ticker> sourceTickArr = tickerUtil.toTickerArray(data);
+		renko.setBrickSize(bs);
+		renko.buildHistory(sourceTickArr, "open");
+		ArrayList<Double> out = renko.getRenkoPrices();
+		renko.reset();
+		return out;
 		
-		//Renko rInstance = renko.getInstance();
+		/*
 		for(int i=0;i<data.length;i++) {
     		
     		System.out.println("Historical data:"+data[i].getClose());
@@ -94,8 +99,8 @@ public class TradingSession {
     		calculateProfit();
     		rb.addAll(tickArr);
     		tickArr = null;	
-    	}
-		return this.tempProfit;
+    	}*/
+		
 	}
 	
 	public void processData(ArrayList<Ticker> ohlc) {
