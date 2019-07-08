@@ -9,10 +9,17 @@ import com.absk.rtrader.core.models.Ticker;
 @Component
 public class NRenko {
 
-	ArrayList<Double> sourcePrices;
-	ArrayList<Double> renkoPrices;
-	ArrayList<Integer> renkoDirections;
-	double brickSize;
+	private ArrayList<Double> sourcePrices;
+	private ArrayList<Double> renkoPrices;
+	private ArrayList<Integer> renkoDirections;
+	private double brickSize;
+	
+	public NRenko() {
+		this.brickSize = 10;
+		sourcePrices = new ArrayList<Double>();
+		renkoPrices = new ArrayList<Double>();
+		renkoDirections = new ArrayList<Integer>();
+	}
 	
 	public NRenko(double brickSize) {
 		this.brickSize = brickSize;
@@ -26,6 +33,7 @@ public class NRenko {
 		if(tickerArray.size() > 0) {
 			this.sourcePrices = getPriceArrayByPriceType(tickerArray, priceType);
 			this.renkoPrices.add(sourcePrices.get(0));
+			this.renkoDirections.add(0);
 			for(int count = 1; count < sourcePrices.size() ; count++ ) {
 				this.renkoRule(sourcePrices.get(count));
 			}
@@ -64,9 +72,13 @@ public class NRenko {
 		return this.brickSize;
 	}
 	
+	public void setBrickSize(double bs) {
+		this.brickSize = bs;
+	}
+	
 	public long renkoRule(double currentPrice) {
 		
-		long gap = (int)((currentPrice - lastRenkPrice())/this.brickSize);
+		long gap = (int)((currentPrice - lastRenkoPrice())/this.brickSize);
 		boolean isNewBrick = false;
 		long startBrick = 0;
 		long numNewBricks = 0;
@@ -82,17 +94,17 @@ public class NRenko {
 			// Backward direction (up -> down or down -> up)
 			else if(Math.abs(gap) >= 2) {
 				numNewBricks = gap;
-				numNewBricks -= signOfDirection(lastRenkoDirection());
+				numNewBricks -= signOfDirection(gap);
 				startBrick = 2;
 				isNewBrick = true;
 				
-				this.renkoPrices.add(lastRenkPrice() + (this.brickSize * signOfDirection(lastRenkoDirection())));
+				this.renkoPrices.add(lastRenkoPrice() + (this.brickSize * signOfDirection(gap)));
 				this.renkoDirections.add(signOfDirection(lastRenkoDirection()));
 			}
 			
 			if(isNewBrick) {
 				for(long count = startBrick; count < Math.abs(gap); count++) {
-					this.renkoPrices.add(lastRenkPrice() + (this.brickSize * signOfDirection(lastRenkoDirection())));
+					this.renkoPrices.add(lastRenkoPrice() + (this.brickSize * signOfDirection(gap)));
 					this.renkoDirections.add(signOfDirection(lastRenkoDirection()));
 				}
 			}
@@ -124,21 +136,29 @@ public class NRenko {
 	}
 	
 	
-	private double lastRenkPrice() {
+	private double lastRenkoPrice() {
 		if(this.renkoPrices.size()>0)return this.renkoPrices.get(this.renkoPrices.size() - 1);
 		return 0;
 	}
 	
 	private int lastRenkoDirection() {
-		if(this.renkoPrices.size()>0)return this.renkoDirections.get(this.renkoDirections.size() - 1);
+		if(this.renkoDirections.size()>0)return this.renkoDirections.get(this.renkoDirections.size() - 1);
 		return 0;
 	}
 	
-	private int signOfDirection(int direction) {
+	private int signOfDirection(long direction) {
 		if (direction == 0) return 0;
 		if (direction < 0) return -1;
 		return 1;
 	}
 	
-	
+	public void reset() {
+		this.brickSize=10;
+		this.renkoDirections = null;
+		this.renkoPrices = null;
+		this.sourcePrices = null;
+		sourcePrices = new ArrayList<Double>();
+		renkoPrices = new ArrayList<Double>();
+		renkoDirections = new ArrayList<Integer>();
+	}
 }
