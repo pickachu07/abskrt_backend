@@ -1,5 +1,6 @@
 package com.absk.rtrader.core.utils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 
@@ -47,6 +48,40 @@ public class TickerUtil {
 		TickerData data= new TickerData(candle.getOpen(), candle.getHigh(), candle.getLow(), candle.getClose(), candle.getVolume(), candle.getTimestamp(), null, null, 0, 0);
 		Ticker tick = new Ticker("Converted from OHLC", data, new Date(candle.getTimestamp()));
 		return tick;
+	}
+	
+	public ArrayList<Ticker> toTickerArray(OHLC[] ohlc){
+		ArrayList<Ticker> tickArr = new ArrayList<Ticker>();
+		for(int count=0;count<ohlc.length;count++) {
+			tickArr.add(convertToTicker(ohlc[count]));
+		}
+		return tickArr;
+	}
+	
+	public ArrayList<Ticker> renkoPricesToTickerArray(ArrayList<Double> renkoPrices,String exchange,String symbol) {
+		ArrayList<Ticker> tickerArray = new ArrayList<Ticker>();
+		
+		if(renkoPrices.size() > 1)
+		{
+			for(int count=1;count<renkoPrices.size()-1;count++) {
+				double open = renkoPrices.get(count);
+				double close = renkoPrices.get(count+1);
+				double high;
+				double low;
+				if(close >open ) {
+					high = close;
+					low = open;
+				}else {
+					low = close;
+					high = open;
+				}
+				TickerData tickData = new TickerData(open,high,low,close,0F,new Date().getTime(),exchange,symbol,0F,0F);
+				tickerArray.add(new Ticker("Historical Renko",tickData, new Date()));
+			}
+			return tickerArray;
+			
+		}
+		return null;
 	}
 	
 	
