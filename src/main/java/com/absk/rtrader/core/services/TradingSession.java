@@ -7,18 +7,24 @@ import java.util.Date;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.absk.rtrader.core.indicators.NRenko;
 import com.absk.rtrader.core.models.OHLC;
 import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.core.utils.TickerUtil;
+import com.absk.rtrader.exchange.upstox.services.UpstoxSLService;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.google.common.collect.Table.Cell;
 
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 @Component
+@Scope(value=ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class TradingSession {
 
     @Autowired
@@ -26,6 +32,9 @@ public class TradingSession {
     
     @Autowired
     private TickerUtil tickerUtil;
+    
+    @Autowired
+    private UpstoxSLService slService;
     
     String tickerName;
     int sessionType;//0 -->realtime 1 --> optimization TODO: change to enum
@@ -78,6 +87,14 @@ public class TradingSession {
     
     double getProfit() {
         return this.tempProfit;
+    }
+    
+    public void instantiateSLAgents() {
+    	slService.instantiateAgents();
+    }
+    
+    public void setRenkoBrickSize(float bs) {
+    	renko.setBrickSize(bs);
     }
     
     public ArrayList<Double> processAllData(OHLC[] data,double bs) {
