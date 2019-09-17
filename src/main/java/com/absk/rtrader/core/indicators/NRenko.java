@@ -1,12 +1,16 @@
 package com.absk.rtrader.core.indicators;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.absk.rtrader.core.models.Ticker;
 
 @Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class NRenko {
 
 	private ArrayList<Double> sourcePrices;
@@ -19,6 +23,7 @@ public class NRenko {
 		sourcePrices = new ArrayList<Double>();
 		renkoPrices = new ArrayList<Double>();
 		renkoDirections = new ArrayList<Integer>();
+		
 	}
 	
 	public NRenko(double brickSize) {
@@ -26,6 +31,7 @@ public class NRenko {
 		sourcePrices = new ArrayList<Double>();
 		renkoPrices = new ArrayList<Double>();
 		renkoDirections = new ArrayList<Integer>();
+		
 	}
 	
 	public int buildHistory(ArrayList<Ticker> tickerArray,String priceType) {
@@ -59,6 +65,25 @@ public class NRenko {
 		
 		}
 	}
+	
+	public ArrayList<Double> historicalDoNext(double currentPrice) {
+		if(this.renkoPrices.size() == 0) {
+			
+			this.sourcePrices.add(currentPrice);
+			this.renkoPrices.add(currentPrice);
+			this.renkoDirections.add(0);
+			ArrayList<Double> openingPrice = new ArrayList<Double>();
+			openingPrice.add(currentPrice);
+			return openingPrice;
+			
+		}else {
+			
+			this.sourcePrices.add(currentPrice);
+			return this.historicalRenkoRule(currentPrice);
+		
+		}
+	}
+	
 	
 	public ArrayList<Double> getSourcePrices(){
 		return this.sourcePrices;
@@ -114,6 +139,52 @@ public class NRenko {
 		
 		return numNewBricks;
 	}
+	
+	public ArrayList<Double> historicalRenkoRule(double currentPrice){
+		long gap = (int)((currentPrice - lastRenkoPrice())/this.brickSize);
+		boolean isNewBrick = false;
+		long startBrick = 0;
+		long numNewBricks = 0;
+		ArrayList<Double> tempRenkoBricks = new ArrayList<Double>();
+		//When we have some gap in prices
+		if(gap != 0) {
+			//Forward any direction (up or down)
+			if( (gap > 0 && lastRenkoDirection()>=0) || (gap < 0 && lastRenkoDirection() <= 0)) {
+				numNewBricks = gap;
+				isNewBrick = true;
+				startBrick = 0;
+			}
+			// Backward direction (up -> down or down -> up)
+			else if(Math.abs(gap) >= 2) {
+				numNewBricks = gap;
+				numNewBricks -= signOfDirection(gap);
+				startBrick = 2;
+				isNewBrick = true;
+				
+				this.renkoPrices.add(lastRenkoPrice() + (this.brickSize * signOfDirection(gap)));
+				tempRenkoBricks.add(lastRenkoPrice() + (this.brickSize * signOfDirection(gap)));
+				this.renkoDirections.add(signOfDirection(lastRenkoDirection()));
+			}
+			
+			if(isNewBrick) {
+				for(long count = startBrick; count < Math.abs(gap); count++) {
+					this.renkoPrices.add(lastRenkoPrice() + (this.brickSize * signOfDirection(gap)));
+					tempRenkoBricks.add(lastRenkoPrice() + (this.brickSize * signOfDirection(gap)));
+					this.renkoDirections.add(signOfDirection(lastRenkoDirection()));
+				}
+			}
+			return tempRenkoBricks;
+			
+		}
+		
+		return null;
+	}
+	
+	public List<Double> getLastRenkoBricks(int n){
+		return renkoPrices.subList(Math.max(renkoPrices.size() - n, 0), renkoPrices.size());
+	}
+	
+	
 	
 	private ArrayList<Double> getPriceArrayByPriceType(ArrayList<Ticker> tickerArray, String priceType) {
 		
