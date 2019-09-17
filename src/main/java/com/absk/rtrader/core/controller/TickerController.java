@@ -12,17 +12,21 @@ import org.springframework.web.servlet.ModelAndView;
 import com.absk.rtrader.core.constants.CoreConstants;
 import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.core.repositories.TickerRepositoryCustom;
-import com.absk.rtrader.exchange.upstox.constants.FeedTypeConstants;
-import com.absk.rtrader.exchange.upstox.constants.UpstoxTicker;
+import com.absk.rtrader.core.services.TradingSession;
+import com.absk.rtrader.exchange.upstox.constants.UpstoxFeedTypeConstants;
+import com.absk.rtrader.exchange.upstox.constants.UpstoxSymbolNames;
 import com.absk.rtrader.exchange.upstox.services.UpstoxFeedServiceImpl;
 import com.absk.rtrader.exchange.upstox.services.UpstoxWebSocketService;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
-@Slf4j
+@Log4j2
 @RestController
 public class TickerController {
 
+	@Autowired
+	private TradingSession tradingSession;
+	
 	@Autowired
 	private TickerRepositoryCustom tickerRepository;
 
@@ -31,6 +35,7 @@ public class TickerController {
 
 	@Autowired
 	private UpstoxFeedServiceImpl upstoxFeedService;
+	
 
 	@CrossOrigin(origins = CoreConstants.FRONTEND_BASE_URI)
 	@GetMapping("/tickers")
@@ -62,19 +67,26 @@ public class TickerController {
 	public String getOHLC() {
 		return "Site is up!";
 	}
+	
 
 	@CrossOrigin(origins = CoreConstants.FRONTEND_BASE_URI)
-	@GetMapping("/subscribe")
-	public boolean subscribe() {
-		// TODO: add path mappings and ticker name validation method
-		return upstoxFeedService.subscribeToTicker(UpstoxTicker.BANK_NIFTY, FeedTypeConstants.FEEDTYPE_FULL);
+	@GetMapping("/subscribe/{tickerName}/{brickSize}")
+	public boolean subscribe(@PathVariable String tickerName, @PathVariable String brickSize) {
+		
+		log.debug("Subscribed with Ticker name:"+tickerName+" and brickSize: "+brickSize);
+		//validate brickSize to be int
+		int bs = Integer.parseInt(brickSize); 
+		if (bs>50) return false;
+		//TODO: validate ticker Name
+		
+		instantiateTradingSession(tickerName,bs);
+		return upstoxFeedService.subscribeToTicker(tickerName, UpstoxFeedTypeConstants.FEEDTYPE_FULL);
 	}
 
 	@CrossOrigin(origins = CoreConstants.FRONTEND_BASE_URI)
 	@GetMapping("/unsubscribe")
 	public boolean unSubscribe() {
-		// TODO: add path mappings and ticker name validation method
-		return upstoxFeedService.unSubscribeToTicker(UpstoxTicker.BANK_NIFTY, FeedTypeConstants.FEEDTYPE_FULL);
+		return upstoxFeedService.unSubscribeToTicker(UpstoxSymbolNames.BANK_NIFTY, UpstoxFeedTypeConstants.FEEDTYPE_FULL);
 	}
 
 	@CrossOrigin(origins = CoreConstants.FRONTEND_BASE_URI)
@@ -82,6 +94,7 @@ public class TickerController {
 	public ModelAndView wsConnect() {
 		log.info("Triggered websocket connect request");
 		try {
+			//TODO check if auth token present/valid
 			upstoxWebSocketService.connect();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -97,4 +110,14 @@ public class TickerController {
 		return new ModelAndView("redirect:" + CoreConstants.FRONTEND_BASE_URI);
 	}
 
+	 private void instantiateTradingSession(String tickerName,float brickSize) {
+		log.debug("Instantiated trading sessions with TickerName:"+tickerName+" BrickSize: "+brickSize);
+		tradingSession.setBrickSize(brickSize);
+		tradingSession.setSessionType(1);
+		tradingSession.setTickerName(tickerName);
+		tradingSession.instantiateSLAgents();
+		tradingSession.setRenkoBrickSize(brickSize);
+	}
+	
+	
 }

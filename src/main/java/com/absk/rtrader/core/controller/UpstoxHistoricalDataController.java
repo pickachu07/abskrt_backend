@@ -1,5 +1,6 @@
 package com.absk.rtrader.core.controller;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -43,7 +44,6 @@ public class UpstoxHistoricalDataController {
 	@GetMapping("/{queryDate}/{bs}")
 	public ArrayList<Ticker> getOrigData(@PathVariable String queryDate,@PathVariable String bs){
 		
-		ArrayList<Ticker> tickArr = new ArrayList<Ticker>();
 		OHLC[] data = upstoxUtil.getHistoricalOHLC(queryDate);
 		ArrayList<Double> renkoPrices = ts.processAllData(data,Double.parseDouble(bs));
 		
@@ -82,7 +82,7 @@ public class UpstoxHistoricalDataController {
 	
 	@CrossOrigin(origins = CoreConstants.FRONTEND_BASE_URI)
 	@GetMapping("/trans")
-	public  Set<Cell<String, Integer, Double>> getTransactions(){
+	public  Set<Cell<String, Integer, BigDecimal>> getTransactions(){
 		//OHLC[] data = upstoxUtil.getHistoricalOHLC();
 		//ts.processAllData(data);
 		return ts.getTransactions();

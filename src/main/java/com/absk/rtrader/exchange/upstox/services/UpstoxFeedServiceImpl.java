@@ -5,9 +5,9 @@ import java.util.concurrent.CompletableFuture;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.absk.rtrader.exchange.upstox.constants.ExchangeTypes;
-import com.absk.rtrader.exchange.upstox.constants.FeedTypeConstants;
-import com.absk.rtrader.exchange.upstox.constants.UpstoxTicker;
+import com.absk.rtrader.exchange.upstox.constants.UpstoxExchangeTypeConstants;
+import com.absk.rtrader.exchange.upstox.constants.UpstoxFeedTypeConstants;
+import com.absk.rtrader.exchange.upstox.constants.UpstoxSymbolNames;
 import com.github.rishabh9.riko.upstox.common.models.UpstoxResponse;
 import com.github.rishabh9.riko.upstox.feed.FeedService;
 import com.github.rishabh9.riko.upstox.feed.models.SubscriptionResponse;
@@ -22,7 +22,7 @@ public class UpstoxFeedServiceImpl {
 
 		// TODO: create utils to fetch feedtype and exchange type
 		CompletableFuture<UpstoxResponse<SubscriptionResponse>> future = feedService
-				.subscribe(feedType, ExchangeTypes.NSE_INDEX, tickerName);
+				.subscribe(feedType, UpstoxExchangeTypeConstants.NSE_INDEX, tickerName);
 		try {
 			return future.get().getData().isSuccess();
 		} catch (Exception e) {
@@ -35,7 +35,7 @@ public class UpstoxFeedServiceImpl {
 
 		// TODO: create utils to fetch feedtype and exchange type
 		CompletableFuture<UpstoxResponse<SubscriptionResponse>> future = feedService
-				.unsubscribe(FeedTypeConstants.FEEDTYPE_FULL, ExchangeTypes.NSE_INDEX, UpstoxTicker.BANK_NIFTY);
+				.unsubscribe(UpstoxFeedTypeConstants.FEEDTYPE_FULL, UpstoxExchangeTypeConstants.NSE_INDEX, UpstoxSymbolNames.BANK_NIFTY);
 		try {
 			return future.get().getData().isSuccess();
 		} catch (Exception e) {

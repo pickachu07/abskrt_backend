@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.core.models.TickerData;
-import com.absk.rtrader.exchange.upstox.constants.UpstoxTicker;
+import com.absk.rtrader.exchange.upstox.constants.UpstoxSymbolNames;
 
 @Service
 public class TimeframeTransformationService {
@@ -36,7 +36,7 @@ public class TimeframeTransformationService {
 		super();
 		this.sourceTimeframe = 1;//in seconds
 		this.destinationTimeframe = 10;
-		this.tickerName= UpstoxTicker.BANK_NIFTY;
+		this.tickerName= UpstoxSymbolNames.BANK_NIFTY;
 	}
 	
 	public List<Ticker> transform(List<Ticker> sourceTickerList){
