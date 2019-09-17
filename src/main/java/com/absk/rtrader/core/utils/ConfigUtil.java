@@ -27,4 +27,9 @@ public class ConfigUtil {
         return env.getProperty("frontend_url");
     }
     
+    public int getSLAgentPoolSize() {
+       return Integer.parseInt(env.getProperty("sl_agent_pool_size"));
+        
+    }
+    
 }

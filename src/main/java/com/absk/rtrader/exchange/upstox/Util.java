@@ -22,8 +22,8 @@ import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.core.utils.ConfigUtil;
 import com.absk.rtrader.core.utils.DateUtils;
 import com.absk.rtrader.core.utils.TickerUtil;
-import com.absk.rtrader.exchange.upstox.constants.ExchangeTypes;
-import com.absk.rtrader.exchange.upstox.constants.UpstoxTicker;
+import com.absk.rtrader.exchange.upstox.constants.UpstoxExchangeTypeConstants;
+import com.absk.rtrader.exchange.upstox.constants.UpstoxSymbolNames;
 import com.absk.rtrader.exchange.upstox.models.HistoricalAPIResponse;
 import com.absk.rtrader.exchange.upstox.utils.Cache;
 import com.google.gson.Gson;
@@ -72,7 +72,7 @@ public class Util {
 	private String getAccessToken(String code) {
 		RestTemplate restTemplate = new RestTemplate();
 		
-		String plainCreds = "2DgWnzxnRk1TGBQZgdLH37lRcCtCLWE72oWsD9Tn:7025xno292";
+		String plainCreds = "l8Tuqu26Uk7I2PA9IaAaD9zXrMzRxadS9oF0o3cQ:hc8g215w1c";
 		byte[] plainCredsBytes = plainCreds.getBytes();
 		byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
 		String base64Creds = new String(base64CredsBytes);
@@ -159,7 +159,7 @@ public class Util {
 	
 	public OHLC[] getHistoricalOHLC(String inDate) {
 		
-		return getHistoricalOHLC(ExchangeTypes.NSE_INDEX,UpstoxTicker.BANK_NIFTY,DateUtils.convertDateFormat("yyyy-MM-dd", "dd-MM-yyyy", inDate));
+		return getHistoricalOHLC(UpstoxExchangeTypeConstants.NSE_INDEX,UpstoxSymbolNames.BANK_NIFTY,DateUtils.convertDateFormat("yyyy-MM-dd", "dd-MM-yyyy", inDate));
 	}
 	
 	

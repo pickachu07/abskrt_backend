@@ -40,6 +40,19 @@ public class TickerUtil {
 		
 	}
 	
+	public Ticker getTickerFromOpenClose(double open,double close,String symbol,String message) {
+		TickerData data = null;
+		if(open < close) {
+			 data = new TickerData(open,close,open,close,0.0,new Date().getTime(),"",symbol,0.0,0.0);
+		}else {
+			//open >= close
+			data = new TickerData(open,open,close,close,0.0,new Date().getTime(),"",symbol,0.0,0.0);
+		}
+		return new Ticker(message,data,new Date());
+		
+	}
+	
+	
 	public OHLC convertToOHLC(Ticker tick) {
 		return new OHLC(tick.getData().getOpen(),tick.getData().getHigh(),tick.getData().getLow(),tick.getData().getClose(),tick.getData().getVolume(), tick.getData().getTimestamp());
 	}
@@ -57,6 +70,27 @@ public class TickerUtil {
 		}
 		return tickArr;
 	}
+	public ArrayList<Double> getPriceArrayByPriceType(ArrayList<Ticker> tickerArray, String priceType) {
+		
+		if(tickerArray.size()<1)return null;
+		ArrayList<Double> priceArray = new ArrayList<Double>();
+		double priceValue;
+		for(int count = 0; count < tickerArray.size() ; count++) {
+			if(priceType.equalsIgnoreCase("close")) {
+				priceValue = tickerArray.get(count).getData().getClose();
+			}
+			else if(priceType.equalsIgnoreCase("open")) {
+				priceValue = tickerArray.get(count).getData().getOpen();
+			}
+			else {
+				priceValue = tickerArray.get(count).getData().getOpen();
+			}
+			priceArray.add(priceValue);
+		}
+		return priceArray;
+	}
+	
+	
 	
 	public ArrayList<Ticker> renkoPricesToTickerArray(ArrayList<Double> renkoPrices,String exchange,String symbol) {
 		ArrayList<Ticker> tickerArray = new ArrayList<Ticker>();
