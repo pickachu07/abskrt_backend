@@ -1,6 +1,6 @@
 package com.absk.rtrader.exchange.upstox.constants;
 
-public class ExchangeTypes {
+public class UpstoxExchangeTypeConstants {
 	public static final String NSE_FUTURE_AND_OPTIONS = "nse_fo";
 	public static final String NSE_EQUITY = "nse_eq";
 	public static final String NSE_INDEX = "nse_index";
