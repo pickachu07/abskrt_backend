@@ -4,12 +4,10 @@ import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import com.absk.rtrader.core.indicators.Renko;
 import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.core.services.TradingSession;
-import com.absk.rtrader.exchange.upstox.constants.UpstoxTicker;
+import com.absk.rtrader.exchange.upstox.constants.UpstoxSymbolNames;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,9 +19,6 @@ public class TickerSubscriber implements Subscriber<Ticker>{
 	@Autowired
 	private TradingSession tradingSession;
 	
-	@Autowired
-	private Renko renko;
-	
 	private boolean isNotifiedAlready = false;
 	
 	@Override
@@ -31,7 +26,7 @@ public class TickerSubscriber implements Subscriber<Ticker>{
 		log.info("TickerSubscriber Subscribed! Ready to receive tickers!");
 		this.tickerSubscription = subscription;
 		tickerSubscription.request(1);//Check effects of increasing size;
-		instantiateTradingSession(UpstoxTicker.BANK_NIFTY, 4.0F);//Default
+		instantiateTradingSession(UpstoxSymbolNames.BANK_NIFTY, 4.0F);//Default
 	}
 
 	@Override

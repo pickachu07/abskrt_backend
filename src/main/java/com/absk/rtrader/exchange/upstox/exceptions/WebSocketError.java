@@ -1,7 +1,12 @@
 package com.absk.rtrader.exchange.upstox.exceptions;
 
 public class WebSocketError extends Exception {
-    public WebSocketError(String message) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public WebSocketError(String message) {
         super(message);
     }
 

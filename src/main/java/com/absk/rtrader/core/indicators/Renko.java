@@ -3,7 +3,6 @@ package com.absk.rtrader.core.indicators;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.absk.rtrader.core.models.OHLC;
