@@ -120,9 +120,6 @@ public class UpstoxWebSocketSubscriber implements MessageSubscriber {
             
             ArrayList<Ticker> newBricks = getNewBricks(tickArr);
             
-            
-            
-            
             if(newBricks != null && newBricks.size() > 0) {
             	
             	tradingSession.processData(newBricks);
@@ -135,8 +132,11 @@ public class UpstoxWebSocketSubscriber implements MessageSubscriber {
                 lastRenkoArrayLength = tickArr.size();
             }
             
+            for(UpstoxSLAgent slAgent : Listners) {
+            	log.info("Adding data to agent:"+slAgent.getId());//convert to debug
+            	slAgent.onNext(itemAsString);
+            }
             
-            //System.out.println("Temp Profit:"+tradingSession.calculateProfit());
             tickArr = null;
             
         } else if (item instanceof ConnectedMessage) {
@@ -190,17 +190,4 @@ public class UpstoxWebSocketSubscriber implements MessageSubscriber {
             this.subscription.cancel();
         }
     }
-    
-	/*
-	 * public void setParams(String tickerName,float brickSize){
-	 * instantiateTradingSession(tickerName,brickSize); }
-	 */
-    
-	/*
-	 * private void instantiateTradingSession(String tickerName,float brickSize) {
-	 * log.debug("Instantiated trading sessions with TickerName:"
-	 * +tickerName+" BrickSize: "+brickSize);
-	 * tradingSession.setBrickSize(brickSize); tradingSession.setSessionType(1);
-	 * tradingSession.setTickerName(tickerName); }
-	 */
 }
