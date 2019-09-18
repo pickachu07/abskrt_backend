@@ -17,13 +17,14 @@ public class NRenko {
 	private ArrayList<Double> renkoPrices;
 	private ArrayList<Integer> renkoDirections;
 	private double brickSize;
+	private int lastRenkoArraySize;
 	
 	public NRenko() {
 		this.brickSize = 10;
 		sourcePrices = new ArrayList<Double>();
 		renkoPrices = new ArrayList<Double>();
 		renkoDirections = new ArrayList<Integer>();
-		
+		lastRenkoArraySize = 0;
 	}
 	
 	public NRenko(double brickSize) {
@@ -31,7 +32,7 @@ public class NRenko {
 		sourcePrices = new ArrayList<Double>();
 		renkoPrices = new ArrayList<Double>();
 		renkoDirections = new ArrayList<Integer>();
-		
+		lastRenkoArraySize = 0;
 	}
 	
 	public int buildHistory(ArrayList<Ticker> tickerArray,String priceType) {
@@ -50,7 +51,7 @@ public class NRenko {
 	
 	//Getting next renko value for last price
 	
-	public long doNext(double currentPrice) {
+	public int doNext(double currentPrice) {
 		if(this.renkoPrices.size() == 0) {
 			
 			this.sourcePrices.add(currentPrice);
@@ -90,7 +91,11 @@ public class NRenko {
 	}
 	
 	public ArrayList<Double> getRenkoPrices(){
-		return this.renkoPrices;
+		if (this.renkoPrices.size() > this.lastRenkoArraySize) {
+			lastRenkoArraySize = this.renkoPrices.size();
+			return this.renkoPrices;
+		}
+		return null;
 	}
 	
 	public double getBrickSize() {
@@ -101,12 +106,12 @@ public class NRenko {
 		this.brickSize = bs;
 	}
 	
-	public long renkoRule(double currentPrice) {
+	public int renkoRule(double currentPrice) {
 		
-		long gap = (int)((currentPrice - lastRenkoPrice())/this.brickSize);
+		int gap = (int)((currentPrice - lastRenkoPrice())/this.brickSize);
 		boolean isNewBrick = false;
-		long startBrick = 0;
-		long numNewBricks = 0;
+		int startBrick = 0;
+		int numNewBricks = 0;
 		
 		//When we have some gap in prices
 		if(gap != 0) {
@@ -141,10 +146,10 @@ public class NRenko {
 	}
 	
 	public ArrayList<Double> historicalRenkoRule(double currentPrice){
-		long gap = (int)((currentPrice - lastRenkoPrice())/this.brickSize);
+		int gap = (int)((currentPrice - lastRenkoPrice())/this.brickSize);
 		boolean isNewBrick = false;
-		long startBrick = 0;
-		long numNewBricks = 0;
+		int startBrick = 0;
+		int numNewBricks = 0;
 		ArrayList<Double> tempRenkoBricks = new ArrayList<Double>();
 		//When we have some gap in prices
 		if(gap != 0) {
@@ -180,8 +185,11 @@ public class NRenko {
 		return null;
 	}
 	
-	public List<Double> getLastRenkoBricks(int n){
-		return renkoPrices.subList(Math.max(renkoPrices.size() - n, 0), renkoPrices.size());
+	public ArrayList<Double> getLastRenkoBricks(int n){
+		List<Double>renkoPriceList = renkoPrices.subList(Math.max(renkoPrices.size() - n, 0), renkoPrices.size());
+		ArrayList<Double> renkoPriceArrayList = new ArrayList<Double>();
+		renkoPriceArrayList.addAll(renkoPriceList);
+		return renkoPriceArrayList;
 	}
 	
 	
