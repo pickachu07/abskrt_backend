@@ -7,6 +7,7 @@ import com.absk.rtrader.core.models.TickerData;
 
 public class UpstoxTickerUtils {
 
+	
 	public UpstoxTickerUtils() {
 		
 	}
@@ -35,7 +36,7 @@ public class UpstoxTickerUtils {
 		 String[] tickerItems =  dataString.split(";");
 		 for(String tickerItem :  tickerItems) {
 			 Ticker tick = parseTicker(tickerItem);
-			 if (tick.getData().getSymbol().equalsIgnoreCase("symbol"))return tick;
+			 if (tick.getData().getSymbol().equalsIgnoreCase(symbol))return tick;
 		 }
 		 return null;
 		 

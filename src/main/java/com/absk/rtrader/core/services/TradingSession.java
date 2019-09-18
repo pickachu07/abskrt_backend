@@ -1,5 +1,6 @@
 package com.absk.rtrader.core.services;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class TradingSession {
     int sessionType;//0 -->realtime 1 --> optimization TODO: change to enum
     int timeFrame;
     float brickSize;
-    Table<String, Integer, Double > orders;
+    Table<String, Integer, BigDecimal > orders;
     double profit;
     int orderCount;
     int last_signal_type;
@@ -73,16 +74,21 @@ public class TradingSession {
         this.tempProfit = 0.0;
     }
     
-    void registerBuyOpt(Double price,Date date) {
-        orderCount++;
-        DateFormat dateFormat = new SimpleDateFormat("dd-MM-YYYY hh:mm:ss");
-        orders.put("Buy at "+dateFormat.format(date), orderCount, price);
+    public void testMarketBuy() {
+    	
     }
     
-    void registerSellOpt(Double price,Date date) {
+    
+    void registerBuyOpt(double price,Date date) {
         orderCount++;
         DateFormat dateFormat = new SimpleDateFormat("dd-MM-YYYY hh:mm:ss");
-        orders.put("Sell at "+dateFormat.format(date), orderCount, price);
+        orders.put("Buy at "+dateFormat.format(date), orderCount,new BigDecimal(price));
+    }
+    
+    void registerSellOpt(double price,Date date) {
+        orderCount++;
+        DateFormat dateFormat = new SimpleDateFormat("dd-MM-YYYY hh:mm:ss");
+        orders.put("Sell at "+dateFormat.format(date), orderCount, new BigDecimal(price));
     }
     
     double getProfit() {
@@ -213,7 +219,7 @@ public class TradingSession {
     public ArrayList<Ticker> getRenkoBricks(){
         return this.rb;
     }
-    public Set<Cell<String, Integer, Double>> getTransactions(){
+    public Set<Cell<String, Integer, BigDecimal>> getTransactions(){
         return this.orders.cellSet();
     }
     

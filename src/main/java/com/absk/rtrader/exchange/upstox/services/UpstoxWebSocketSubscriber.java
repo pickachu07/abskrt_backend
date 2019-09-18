@@ -2,7 +2,6 @@ package com.absk.rtrader.exchange.upstox.services;
 
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.concurrent.Flow;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,13 +10,15 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
-import com.absk.rtrader.core.indicators.Renko;
+import com.absk.rtrader.core.indicators.NRenko;
 import com.absk.rtrader.core.models.Ticker;
-import com.absk.rtrader.core.models.TickerData;
 import com.absk.rtrader.core.repositories.TickerRepository;
 import com.absk.rtrader.core.services.TradingSession;
-import com.absk.rtrader.exchange.upstox.constants.UpstoxSymbolNames;
+import com.absk.rtrader.core.utils.ConfigUtil;
+import com.absk.rtrader.core.utils.TickerUtil;
+import com.absk.rtrader.exchange.upstox.constants.UpstoxExchangeTypeConstants;
 import com.absk.rtrader.exchange.upstox.exceptions.WebSocketError;
+import com.absk.rtrader.exchange.upstox.utils.UpstoxTickerUtils;
 import com.github.rishabh9.riko.upstox.websockets.MessageSubscriber;
 import com.github.rishabh9.riko.upstox.websockets.messages.BinaryMessage;
 import com.github.rishabh9.riko.upstox.websockets.messages.ClosingMessage;
@@ -31,19 +32,22 @@ import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class UpstoxWebSocketSubscriber implements MessageSubscriber {
 
     private Flow.Subscription subscription;
     
+    private ArrayList<UpstoxSLAgent> Listners;
     
     @Autowired
     private TradingSession tradingSession;
     
     @Autowired
-    private Renko renko;
+    private NRenko renko;
     
     private ArrayList<Ticker> tickArr;
+    
+    private int lastRenkoArrayLength;
     
     @Autowired
     private SimpMessagingTemplate webSocketTemplate;
@@ -51,18 +55,43 @@ public class UpstoxWebSocketSubscriber implements MessageSubscriber {
     @Autowired
     private TickerRepository tickerRepo;
 
+    @Autowired
+    UpstoxSLService slService;
+    
+    @Autowired
+	ConfigUtil config;
+    
+    @Autowired
+    TickerUtil tickerUtil;
+    
+    
     public void onSubscribe(final Flow.Subscription subscription) {
         log.info("Subscribed! Ready to receive messages!");
         this.subscription = subscription;
         this.subscription.request(1);
-        instantiateTradingSession(UpstoxSymbolNames.BANK_NIFTY, 4.0F);//Default
+        //instantiateTradingSession(UpstoxSymbolNames.BANK_NIFTY, 4.0F);//Default
+        slService.instantiateAgents();
+        Listners = new ArrayList<UpstoxSLAgent>();
+        lastRenkoArrayLength = 0;
+    }
+    
+    public void subscribeListner(UpstoxSLAgent agent) {
+    	if(Listners.size() >= config.getSLAgentPoolSize()) {
+    		//something wrong as number of listners cannot be more than no of agents in pool
+    		return;
+    	}
+    	Listners.add(agent);
     }
 
     public void onNext(WebSocketMessage item) {
         if (item instanceof BinaryMessage) {
             
             String itemAsString = ((BinaryMessage) item).getMessageAsString();
-            Ticker tick = parseTicker(itemAsString);
+            log.info("Binary Message: {}", itemAsString);
+            /*
+             * Old way of Renko calculation
+             * 
+             * Ticker tick = parseTicker(itemAsString);
             log.info("Binary Message: {}", itemAsString);
             log.info("Parsed TickerData: {}", tick.getData().toString());
             
@@ -71,15 +100,41 @@ public class UpstoxWebSocketSubscriber implements MessageSubscriber {
             tickArr = renko.getInstance().drawRenko(tick, tradingSession.getBrickSize());
             tradingSession.processData(tickArr);
             
+            */
+            
+            //new renko
+            
+            UpstoxTickerUtils utils = new UpstoxTickerUtils();
+            Ticker tick = utils.filterTickerBySymbol(itemAsString, tradingSession.getTickerName());
+            
+            double currentClose = tick.getData().getClose();
+            renko.setBrickSize(tradingSession.getBrickSize());
+            renko.doNext(currentClose);
+            
+            tickArr = tickerUtil.renkoPricesToTickerArray(renko.getRenkoPrices(),UpstoxExchangeTypeConstants.NSE_INDEX,tradingSession.getTickerName());
+            
+            
             
             //send ohlc to ohlc_stream
             webSocketTemplate.convertAndSend("/topic/ohlc_stream", tick);
             
-            //send renko brick to /topic/renko_stream
-            for(int i=0;i<tickArr.size();i++){
-                //log.info("The tick is now {}", tick);
-                webSocketTemplate.convertAndSend("/topic/ticker_stream", tickArr.get(i));
+            ArrayList<Ticker> newBricks = getNewBricks(tickArr);
+            
+            
+            
+            
+            if(newBricks != null && newBricks.size() > 0) {
+            	
+            	tradingSession.processData(newBricks);
+            	
+            	//send renko brick to /topic/renko_stream
+                for(int i=0;i<newBricks.size();i++){
+                    //log.info("The tick is now {}", tick);
+                    webSocketTemplate.convertAndSend("/topic/ticker_stream", newBricks.get(i));
+                }
+                lastRenkoArrayLength = tickArr.size();
             }
+            
             
             //System.out.println("Temp Profit:"+tradingSession.calculateProfit());
             tickArr = null;
@@ -105,25 +160,15 @@ public class UpstoxWebSocketSubscriber implements MessageSubscriber {
         // Ask for the next message (do not miss this line)
         this.subscription.request(1);
     }
-
-    //TODO:move this to core utils
-    private Ticker parseTicker(String tickerAsString){
-        String[] tickerItems =  tickerAsString.split(",");
-        Long timestamp = Long.parseLong(tickerItems[0]);
-        String exchange = tickerItems[1];
-        String symbol = tickerItems[2];
-        double ltp = Double.parseDouble(tickerItems[3]);
-       // double open = Double.parseDouble(tickerItems[4]);
-        //double high = Double.parseDouble(tickerItems[5]);
-        //double low = Double.parseDouble(tickerItems[6]);
-        //double close = Double.parseDouble(tickerItems[7]);
-        double yHigh = Double.parseDouble(tickerItems[8]);
-        double yLow = Double.parseDouble(tickerItems[9]);
-        
-        TickerData td = new TickerData(ltp,ltp,ltp,ltp,0.0,timestamp,exchange,symbol,yHigh,yLow);
-        return new Ticker("Realtime Feed",td,new Date(timestamp));
-        
-        
+    
+    private ArrayList<Ticker> getNewBricks(ArrayList<Ticker> tickerArr){
+    	if(tickerArr != null && tickerArr.size() > lastRenkoArrayLength) {
+    		ArrayList<Ticker> out = new ArrayList<Ticker>();
+    		out.addAll(lastRenkoArrayLength, tickArr);
+    		lastRenkoArrayLength = tickArr.size();
+    		return out;
+    	}
+    	return null;
     }
     
     public void onError(final Throwable throwable) {
@@ -146,14 +191,16 @@ public class UpstoxWebSocketSubscriber implements MessageSubscriber {
         }
     }
     
-    public void setParams(String tickerName,float brickSize){
-        instantiateTradingSession(tickerName,brickSize);
-    }
+	/*
+	 * public void setParams(String tickerName,float brickSize){
+	 * instantiateTradingSession(tickerName,brickSize); }
+	 */
     
-    private void instantiateTradingSession(String tickerName,float brickSize) {
-        log.debug("Instantiated trading sessions with TickerName:"+tickerName+" BrickSize: "+brickSize);
-        tradingSession.setBrickSize(brickSize);
-        tradingSession.setSessionType(1);
-        tradingSession.setTickerName(tickerName);
-    }
+	/*
+	 * private void instantiateTradingSession(String tickerName,float brickSize) {
+	 * log.debug("Instantiated trading sessions with TickerName:"
+	 * +tickerName+" BrickSize: "+brickSize);
+	 * tradingSession.setBrickSize(brickSize); tradingSession.setSessionType(1);
+	 * tradingSession.setTickerName(tickerName); }
+	 */
 }
