@@ -2,6 +2,7 @@ package com.absk.rtrader.core.utils;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 import org.slf4j.Logger;
@@ -95,9 +96,9 @@ public class TickerUtil {
 	public ArrayList<Ticker> renkoPricesToTickerArray(ArrayList<Double> renkoPrices,String exchange,String symbol) {
 		ArrayList<Ticker> tickerArray = new ArrayList<Ticker>();
 		
-		if(renkoPrices.size() > 1)
+		if(renkoPrices!= null && renkoPrices.size() > 1)
 		{
-			for(int count=1;count<renkoPrices.size()-1;count++) {
+			for(int count=0;count<renkoPrices.size()-1;count++) {
 				double open = renkoPrices.get(count);
 				double close = renkoPrices.get(count+1);
 				double high;
