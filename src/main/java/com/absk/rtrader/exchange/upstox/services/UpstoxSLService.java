@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.absk.rtrader.core.utils.ConfigUtil;
+import com.absk.rtrader.exchange.upstox.constants.UpstoxFeedTypeConstants;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -27,6 +28,8 @@ public class UpstoxSLService {
 	@Autowired
 	UpstoxWebSocketSubscriber upstoxWebSocketSubscriber;
 	
+	@Autowired
+	UpstoxFeedServiceImpl feedService;
 	
 	UpstoxSLService(){
 		//log: service instantiated
@@ -42,7 +45,7 @@ public class UpstoxSLService {
 		this.agentPool = new ArrayList<UpstoxSLAgent>();
 		log.info("Instantiating Stop Loss agents. PoolSize: "+poolSize);
 		for(int count=0;count<poolSize;count++) {
-			UpstoxSLAgent agent = new UpstoxSLAgent();
+			UpstoxSLAgent agent = new UpstoxSLAgent(this);
 			agent.setSLServiceSupervisor(this);
 			agentPool.add(agent);
 		}
@@ -64,26 +67,53 @@ public class UpstoxSLService {
 		return null;
 	}
 	
+	public boolean isAnyAgentFree() {
+		for(UpstoxSLAgent agent : agentPool ) {
+			if(!agent.isActive())return true;
+		}
+		return false;
+	}
+	
 	//start agent(ticker,price,stoploss)
-	public boolean startAgent(String ticker,BigDecimal price,int stopLoss) {
+	public boolean startAgent(String ticker,String exchange,BigDecimal price,int stopLoss) {
 		UpstoxSLAgent agent = getFreeAgent();
 		if(agent == null) {
 			log.error("No agent free!!");
 			return false;
 		}
-		agent.setParams(ticker, price, stopLoss);
+		agent.setParams(ticker,exchange, price, stopLoss);
 		log.info("Starting agent with details (Ticker Name | Price |  Stoploss) : "+ticker+" | "+price.toPlainString()+" | "+stopLoss);
+		subscribeToTicker(ticker,exchange,UpstoxFeedTypeConstants.FEEDTYPE_FULL);
+		subscribeAgentToTickerStream(agent.getId());
 		return agent.start();
 	}
 	
 	
 	
 	//register agent to Upstox Web Socket subscriber
-	public boolean subscribeAgentToTickerStream(String agentId){
+	public void subscribeAgentToTickerStream(String agentId){
 		log.info("Subcribing to ticker Stream: Agent ID: "+agentId);
 		upstoxWebSocketSubscriber.subscribeListner(getAgent(agentId));
-		return false;
+		
 	}
+	
+	
+	public boolean subscribeToTicker(String tickerName,String exchange, String feedType) {
+		return feedService.subscribeToTicker(tickerName, exchange, feedType);
+	}
+	
+	public boolean unsubscribeToTicker(String tickerName,String exchange, String feedType) {
+		return feedService.unSubscribeToTicker(tickerName, exchange, feedType);
+	}
+	
+	public String subscribeToTickerGetDetail(String tickerName,String exchange, String feedType) {
+		return feedService.subscribeToTickerGetDetail(tickerName, exchange, feedType).toString();
+	}
+	
+	public String unsubscribeToTickerGetDetail(String tickerName,String exchange, String feedType) {
+		return feedService.unSubscribeToTickerGetDetail(tickerName, exchange, feedType).toString();
+	}
+	
 	
 	
 	
