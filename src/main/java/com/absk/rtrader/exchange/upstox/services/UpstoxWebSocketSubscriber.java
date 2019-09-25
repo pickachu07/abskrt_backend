@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import com.absk.rtrader.core.indicators.NRenko;
 import com.absk.rtrader.core.interfaces.TickerDataListner;
 import com.absk.rtrader.core.models.Ticker;
+import com.absk.rtrader.core.repositories.TickerRepository;
 import com.absk.rtrader.core.services.TradingSession;
 import com.absk.rtrader.core.utils.ConfigUtil;
 import com.absk.rtrader.core.utils.TickerUtil;
@@ -52,9 +53,9 @@ public class UpstoxWebSocketSubscriber implements MessageSubscriber {
     @Autowired
     private SimpMessagingTemplate webSocketTemplate;
     
-	/*
-	 * @Autowired private TickerRepository tickerRepo;
-	 */
+	
+	  @Autowired private TickerRepository tickerRepo;
+	 
     @Autowired
     UpstoxSLService slService;
     
