@@ -32,4 +32,14 @@ public class ConfigUtil {
         
     }
     
+    public String getBNPrefix() {
+        return env.getProperty("BN_Prefix");
+         
+     }
+    
+    public boolean isTradingEnabled() {
+        if(env.getProperty("trade_enabled").equalsIgnoreCase("true"))return true;
+        return false;
+     }
+    
 }

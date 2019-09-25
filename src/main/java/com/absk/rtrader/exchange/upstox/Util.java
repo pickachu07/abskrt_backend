@@ -107,9 +107,7 @@ public class Util {
 	 
 	
 	public String getCurrentAccessToken(){
-		//List<AccessToken> tokenList = atr.getByDate(dateFormat.format(new Date()));
-		//if(tokenList.size() ==  0)return "";
-		//String token = tokenList.get(0).getToken();
+		
 		return cache.getAccessToken().get().getToken();
 		
 	}

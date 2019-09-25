@@ -2,7 +2,6 @@ package com.absk.rtrader.core.utils;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Random;
 
 import org.slf4j.Logger;
@@ -14,12 +13,16 @@ import com.absk.rtrader.core.models.OHLC;
 import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.core.models.TickerData;
 import com.absk.rtrader.core.repositories.TickerRepository;
+import com.absk.rtrader.exchange.upstox.constants.UpstoxStrikeTypeConstants;
 
 @Component
 public class TickerUtil {
 
 	@Autowired
 	private TickerRepository tickerRepo;
+	
+	@Autowired
+	ConfigUtil configUtil;
 	
 	Random rand = new Random();
 
@@ -118,6 +121,28 @@ public class TickerUtil {
 		}
 		return null;
 	}
+	
+	/*
+	 * Calculate Call/Put Strike from current price
+	 * In  : Current Price of index  : Double
+	 * In  : Consecutive Diff between two Strike : int
+	 * In  : call/put : String
+	 * Out : Closest Strike : String
+	 */
+	public String getClosestStrikePrice(double currentPrice,int sDiff ,String strikeType) {
+		
+		String prefix = configUtil.getBNPrefix();
+		
+		int q = (int)currentPrice/sDiff;
+		int r = (int)currentPrice % sDiff;
+		
+		if(r <= (sDiff/2)) {
+			return (strikeType.equalsIgnoreCase(UpstoxStrikeTypeConstants.CALL) ? prefix + (q*sDiff) + "CE": prefix + (q*sDiff) + "PE");
+		}else {
+			return (strikeType.equalsIgnoreCase(UpstoxStrikeTypeConstants.CALL) ? prefix + ((q+1)*sDiff) + "CE": prefix + ((q+1)*sDiff) + "PE");
+		}
+	}
+	
 	
 	
 }
