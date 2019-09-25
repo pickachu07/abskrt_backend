@@ -74,11 +74,7 @@ public class TradingSession {
         this.tempProfit = 0.0;
     }
     
-    public void testMarketBuy() {
-    	
-    }
-    
-    
+   
     void registerBuyOpt(double price,Date date) {
         orderCount++;
         DateFormat dateFormat = new SimpleDateFormat("dd-MM-YYYY hh:mm:ss");
