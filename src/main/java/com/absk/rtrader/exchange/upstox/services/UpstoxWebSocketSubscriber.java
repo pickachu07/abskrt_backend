@@ -11,8 +11,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import com.absk.rtrader.core.indicators.NRenko;
+import com.absk.rtrader.core.interfaces.TickerDataListner;
 import com.absk.rtrader.core.models.Ticker;
-import com.absk.rtrader.core.repositories.TickerRepository;
 import com.absk.rtrader.core.services.TradingSession;
 import com.absk.rtrader.core.utils.ConfigUtil;
 import com.absk.rtrader.core.utils.TickerUtil;
@@ -52,9 +52,9 @@ public class UpstoxWebSocketSubscriber implements MessageSubscriber {
     @Autowired
     private SimpMessagingTemplate webSocketTemplate;
     
-    @Autowired
-    private TickerRepository tickerRepo;
-
+	/*
+	 * @Autowired private TickerRepository tickerRepo;
+	 */
     @Autowired
     UpstoxSLService slService;
     
@@ -88,53 +88,43 @@ public class UpstoxWebSocketSubscriber implements MessageSubscriber {
             
             String itemAsString = ((BinaryMessage) item).getMessageAsString();
             log.info("Binary Message: {}", itemAsString);
-            /*
-             * Old way of Renko calculation
-             * 
-             * Ticker tick = parseTicker(itemAsString);
-            log.info("Binary Message: {}", itemAsString);
-            log.info("Parsed TickerData: {}", tick.getData().toString());
-            
-            tickerRepo.save(tick);
-            
-            tickArr = renko.getInstance().drawRenko(tick, tradingSession.getBrickSize());
-            tradingSession.processData(tickArr);
-            
-            */
-            
-            //new renko
             
             UpstoxTickerUtils utils = new UpstoxTickerUtils();
             Ticker tick = utils.filterTickerBySymbol(itemAsString, tradingSession.getTickerName());
             
-            double currentClose = tick.getData().getClose();
-            renko.setBrickSize(tradingSession.getBrickSize());
-            renko.doNext(currentClose);
             
-            tickArr = tickerUtil.renkoPricesToTickerArray(renko.getRenkoPrices(),UpstoxExchangeTypeConstants.NSE_INDEX,tradingSession.getTickerName());
-            
-            
-            
-            //send ohlc to ohlc_stream
-            webSocketTemplate.convertAndSend("/topic/ohlc_stream", tick);
-            
-            ArrayList<Ticker> newBricks = getNewBricks(tickArr);
-            
-            if(newBricks != null && newBricks.size() > 0) {
-            	
-            	tradingSession.processData(newBricks);
-            	
-            	//send renko brick to /topic/renko_stream
-                for(int i=0;i<newBricks.size();i++){
-                    //log.info("The tick is now {}", tick);
-                    webSocketTemplate.convertAndSend("/topic/ticker_stream", newBricks.get(i));
+            if(tick != null) {
+            	//tickerRepo.save(tick);//uncomment after test
+            	double currentClose = tick.getData().getClose();
+                renko.setBrickSize(tradingSession.getBrickSize());
+                renko.doNext(currentClose);
+                
+                tickArr = tickerUtil.renkoPricesToTickerArray(renko.getRenkoPrices(),UpstoxExchangeTypeConstants.NSE_INDEX,tradingSession.getTickerName());
+                
+                
+                
+                //send ohlc to ohlc_stream
+                webSocketTemplate.convertAndSend("/topic/ohlc_stream", tick);
+                
+                ArrayList<Ticker> newBricks = getNewBricks(tickArr);
+                
+                if(newBricks != null && newBricks.size() > 0) {
+                	
+                	tradingSession.processData(newBricks);
+                	
+                	//send renko brick to /topic/renko_stream
+                    for(int i=0;i<newBricks.size();i++){
+                        //log.info("The tick is now {}", tick);
+                        webSocketTemplate.convertAndSend("/topic/ticker_stream", newBricks.get(i));
+                    }
+                    lastRenkoArrayLength = tickArr.size();
                 }
-                lastRenkoArrayLength = tickArr.size();
+                
             }
             
-            for(UpstoxSLAgent slAgent : Listners) {
-            	log.info("Adding data to agent:"+slAgent.getId());//convert to debug
-            	slAgent.onNext(itemAsString);
+            for(TickerDataListner listner : Listners) {
+            	log.info("Adding data to agent:"+listner.getId());//convert to debug
+            	listner.onNext(itemAsString);
             }
             
             tickArr = null;
@@ -155,6 +145,8 @@ public class UpstoxWebSocketSubscriber implements MessageSubscriber {
         } else {
             // if (item instanceof TextMessage) {
             final TextMessage message = (TextMessage) item;
+            
+            
             log.info("Text message received: {}", message);
         }
         // Ask for the next message (do not miss this line)
@@ -162,9 +154,11 @@ public class UpstoxWebSocketSubscriber implements MessageSubscriber {
     }
     
     private ArrayList<Ticker> getNewBricks(ArrayList<Ticker> tickerArr){
-    	if(tickerArr != null && tickerArr.size() > lastRenkoArrayLength) {
+    	if(tickerArr != null && tickerArr.size() > 0) {
     		ArrayList<Ticker> out = new ArrayList<Ticker>();
-    		out.addAll(lastRenkoArrayLength, tickArr);
+    		for(int i=lastRenkoArrayLength; i<tickArr.size() ; i++ ) {
+    			out.add(tickerArr.get(i));
+    		}
     		lastRenkoArrayLength = tickArr.size();
     		return out;
     	}
