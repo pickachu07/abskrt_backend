@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.absk.rtrader.core.interfaces.TickerDataListner;
 import com.absk.rtrader.core.models.Ticker;
+import com.absk.rtrader.exchange.upstox.constants.UpstoxFeedTypeConstants;
 import com.absk.rtrader.exchange.upstox.utils.UpstoxTickerUtils;
 
 import lombok.extern.log4j.Log4j2;
@@ -12,6 +13,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class UpstoxSLAgent implements TickerDataListner {
 	String tickerName;
+	String exchange;
 	BigDecimal initialPrice;
 	int stopLoss;
 	boolean isActive;
@@ -29,11 +31,12 @@ public class UpstoxSLAgent implements TickerDataListner {
 
 	
 	
-	public UpstoxSLAgent(){
+	public UpstoxSLAgent(UpstoxSLService slService){
 	//assign random id
 		this.id = UUID.randomUUID().toString();
 		System.out.println("SL Agent id: "+this.id);
 		isActive = false;
+		setSLServiceSupervisor(slService);
 	 }
 	
 	public String getTicker() {
@@ -42,14 +45,23 @@ public class UpstoxSLAgent implements TickerDataListner {
 
 
 
-	public String setParams(String ticker, BigDecimal initialPrice, int stopLossPercent) {
+	public String setParams(String ticker,String exchange, BigDecimal initialPrice, int stopLossPercent) {
 		this.tickerName = ticker;
 		this.initialPrice = initialPrice;
 		this.stopLoss = stopLossPercent;
+		this.exchange = exchange;
 		return getId();
 	}
 
 
+
+	public String getExchange() {
+		return exchange;
+	}
+
+	public void setExchange(String exchange) {
+		this.exchange = exchange;
+	}
 
 	public void setTicker(String ticker) {
 		this.tickerName = ticker;
@@ -94,35 +106,48 @@ public class UpstoxSLAgent implements TickerDataListner {
 
 
 	//onNext(data){} --> Add stoploss logic --> make it configurable
+	@SuppressWarnings("unused")
 	@Override
 	public void onNext(String data) {
 		
 		UpstoxTickerUtils util = new UpstoxTickerUtils();
 		
 		Ticker tick = util.filterTickerBySymbol(data, this.tickerName);
+		
 		if(tick == null) {
-			System.out.println("Error: Data from exchange does not contain ticker of name:"+this.tickerName);
+			log.error("Error: Data from exchange does not contain ticker of name:"+this.tickerName);
+			return;
 		}
+		log.info("SL Agent: "+getId()+"Ticker received: "+tick.toString());
 		//sl business logic
-		log.info("Agent: "+getId()+tick.toString());
+		int buyPrice = initialPrice.intValue();
+		int currPrice = (int)tick.getData().getClose();
+		if(currPrice <= buyPrice) {
+			//sell instantly
+			log.info("SL Agent: Sell trigerred on stoploss at price:"+tick.getData().getClose());
+			//stop subscribing the symbol
+			this.SLServiceSupervisor.subscribeToTicker(this.tickerName, this.exchange, UpstoxFeedTypeConstants.FEEDTYPE_FULL);
+		}
+		if(currPrice > buyPrice) {
+			//increment stoploss
+			this.stopLoss += (currPrice-buyPrice);
+			log.info("SL AGENT:: SL incremented by"+(currPrice-buyPrice)+" Symbol "+this.tickerName);
+		}
+		
+		log.info("SL Agent: "+getId()+"Ticker received: "+tick.toString());
 	}
 	
 	//start()
 	public boolean start() {
-		boolean isSuccessful = subscribe();
-		if(isSuccessful) {
-			isActive = true;
-			return true;
-		}
-		return false;
+		subscribe();
+		isActive = true;
+		return true;	
 	}
 	
-	
-	
 	// ->subscribe to ticker
-	public boolean subscribe() {
+	public void subscribe() {
 		//getHold of UpstoxSLService and call subscribe
-		return this.SLServiceSupervisor.subscribeAgentToTickerStream(this.id);
+		this.SLServiceSupervisor.subscribeAgentToTickerStream(this.id);
 	}
 	
 	public String resetAgent() {
@@ -130,6 +155,7 @@ public class UpstoxSLAgent implements TickerDataListner {
 		this.initialPrice = null;
 		this.stopLoss = 0;
 		this.isActive = false;
+		this.exchange = "";
 		return this.id;
 	}
 
