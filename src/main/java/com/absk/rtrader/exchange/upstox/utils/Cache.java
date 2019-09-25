@@ -1,8 +1,18 @@
 package com.absk.rtrader.exchange.upstox.utils;
 
 
+import static com.absk.rtrader.exchange.upstox.constants.RikoConstants.ACCESS_TOKEN;
+import static com.absk.rtrader.exchange.upstox.constants.RikoConstants.API_CRED;
+import static com.absk.rtrader.exchange.upstox.constants.RikoConstants.API_KEY;
+import static com.absk.rtrader.exchange.upstox.constants.RikoConstants.API_SECRET;
+import static com.absk.rtrader.exchange.upstox.constants.RikoConstants.TOKEN;
+import static com.absk.rtrader.exchange.upstox.constants.RikoConstants.TOKEN_EXPIRY;
+import static com.absk.rtrader.exchange.upstox.constants.RikoConstants.TOKEN_TYPE;
+
 import java.util.Optional;
 
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.github.rishabh9.riko.upstox.common.models.ApiCredentials;
@@ -10,7 +20,6 @@ import com.github.rishabh9.riko.upstox.login.models.AccessToken;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import static com.absk.rtrader.exchange.upstox.constants.RikoConstants.*;
 
 /**
  * Using this cache to represent storage of token into the database.
@@ -18,6 +27,7 @@ import static com.absk.rtrader.exchange.upstox.constants.RikoConstants.*;
  * This class is for demonstration of this starter project only.
  */
 @Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class Cache {
 
     private final LoadingCache<String, Optional<?>> cache;
