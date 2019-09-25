@@ -18,6 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.absk.rtrader.core.utils.ConfigUtil;
 import com.absk.rtrader.exchange.upstox.Util;
+import com.absk.rtrader.exchange.upstox.services.UpstoxAccessTokenManagementService;
 import com.absk.rtrader.exchange.upstox.utils.Cache;
 import com.github.rishabh9.riko.upstox.login.LoginService;
 import com.github.rishabh9.riko.upstox.login.models.AccessToken;
@@ -44,6 +45,20 @@ public class UpstoxAuthController {
 	@Autowired
     private LoginService loginService;
 	
+	@Autowired
+	private UpstoxAccessTokenManagementService tokenManagementService;
+	
+	
+	
+	@GetMapping("/gettoken")
+	public String getToken() {
+		return tokenManagementService.getValidAccessToken();
+	}
+	
+	@GetMapping("/isAuthenticated")
+	public boolean validAccessTokenPresent() {
+		return tokenManagementService.isAuthenticated();
+	}
 
 	
 	@GetMapping("/auth")

@@ -13,6 +13,7 @@ import com.absk.rtrader.core.constants.CoreConstants;
 import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.core.repositories.TickerRepositoryCustom;
 import com.absk.rtrader.core.services.TradingSession;
+import com.absk.rtrader.exchange.upstox.constants.UpstoxExchangeTypeConstants;
 import com.absk.rtrader.exchange.upstox.constants.UpstoxFeedTypeConstants;
 import com.absk.rtrader.exchange.upstox.constants.UpstoxSymbolNames;
 import com.absk.rtrader.exchange.upstox.services.UpstoxFeedServiceImpl;
@@ -80,13 +81,13 @@ public class TickerController {
 		//TODO: validate ticker Name
 		
 		instantiateTradingSession(tickerName,bs);
-		return upstoxFeedService.subscribeToTicker(tickerName, UpstoxFeedTypeConstants.FEEDTYPE_FULL);
+		return upstoxFeedService.subscribeToTicker(tickerName,UpstoxExchangeTypeConstants.NSE_INDEX, UpstoxFeedTypeConstants.FEEDTYPE_FULL);
 	}
 
 	@CrossOrigin(origins = CoreConstants.FRONTEND_BASE_URI)
 	@GetMapping("/unsubscribe")
 	public boolean unSubscribe() {
-		return upstoxFeedService.unSubscribeToTicker(UpstoxSymbolNames.BANK_NIFTY, UpstoxFeedTypeConstants.FEEDTYPE_FULL);
+		return upstoxFeedService.unSubscribeToTicker(UpstoxSymbolNames.BANK_NIFTY,UpstoxExchangeTypeConstants.NSE_INDEX, UpstoxFeedTypeConstants.FEEDTYPE_FULL);
 	}
 
 	@CrossOrigin(origins = CoreConstants.FRONTEND_BASE_URI)
