@@ -94,7 +94,7 @@ public class UpstoxWebSocketSubscriber implements MessageSubscriber {
             
             
             if(tick != null) {
-            	//tickerRepo.save(tick);//uncomment after test
+            	tickerRepo.save(tick);
             	double currentClose = tick.getData().getClose();
                 renko.setBrickSize(tradingSession.getBrickSize());
                 renko.doNext(currentClose);
