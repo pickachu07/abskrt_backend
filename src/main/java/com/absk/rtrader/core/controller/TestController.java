@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.absk.rtrader.core.constants.CoreConstants;
+import com.absk.rtrader.core.models.Ticker;
+import com.absk.rtrader.core.models.TickerData;
+import com.absk.rtrader.core.repositories.TickerRepository;
 import com.absk.rtrader.core.services.TradingSession;
 import com.absk.rtrader.core.utils.TickerUtil;
 import com.absk.rtrader.exchange.upstox.constants.UpstoxExchangeTypeConstants;
@@ -40,9 +43,31 @@ public class TestController {
 	
 	@Autowired
 	TickerUtil tickerUtil;
+	
+	@Autowired
+	TickerRepository tickerRepo;
 		
 	@Autowired
 	UpstoxUserServiceImpl userService;
+	
+	@CrossOrigin(origins = CoreConstants.FRONTEND_BASE_URI)
+	@GetMapping("/testdb/{open}/{high}/{low}/{close}")
+	public String testDB(@PathVariable String open, @PathVariable String high, @PathVariable String low, @PathVariable String close) {
+		
+		TickerData data = new TickerData();
+		data.setOpen(Double.parseDouble(open));
+		data.setClose(Double.parseDouble(close));
+		data.setHigh(Double.parseDouble(high));
+		data.setLow(Double.parseDouble(low));
+		Ticker tick = new Ticker();
+		tick.setData(data);
+		
+		Ticker savedTick = tickerRepo.save(tick);
+		
+		return "Testing db Service. Saving Ticker to db: "+savedTick.getData().toString();
+	}
+	
+	
 	
 	@CrossOrigin(origins = CoreConstants.FRONTEND_BASE_URI)
 	@GetMapping("/testbuy/{strikeType}/{price}/{quantity}")
