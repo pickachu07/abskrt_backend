@@ -48,7 +48,8 @@ public class Util {
 	@Autowired
 	RestTemplateBuilder restTemplateBuilder;
 	
-	private static final Logger logger = LoggerFactory.getLogger(Util.class);
+	private static final Logger log = LoggerFactory.getLogger(Util.class);
+
 	
 	
 	/*blic AccessToken saveAuthCode(String code) {
@@ -130,7 +131,7 @@ public class Util {
         ResponseEntity<Ticker> response = restTemplate.exchange("https://api.upstox.com/live/feed/now/nse_index/NIFTY_BANK/full",HttpMethod.GET,entity, Ticker.class);//https://api.upstox.com/live/feed/now/nse_eq/SBIN/fullhttp://localhost:3000
         Ticker ticker = (Ticker) response.getBody();
         System.out.println("Current Close::::::"+ticker.getData().getClose());
-        logger.info(ticker.toString());
+        log.info(ticker.toString());
         tickerUtil.saveTicker(ticker);
         return ticker;
         

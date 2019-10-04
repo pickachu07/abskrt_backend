@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import com.absk.rtrader.core.controller.TickerController;
 import com.absk.rtrader.core.indicators.Renko;
 import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.exchange.upstox.Util;

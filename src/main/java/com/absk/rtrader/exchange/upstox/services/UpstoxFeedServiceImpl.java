@@ -3,6 +3,8 @@ package com.absk.rtrader.exchange.upstox.services;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,14 +15,14 @@ import com.github.rishabh9.riko.upstox.feed.models.Subscription;
 import com.github.rishabh9.riko.upstox.feed.models.SubscriptionResponse;
 import com.github.rishabh9.riko.upstox.feed.models.SymbolSubscribed;
 
-import lombok.extern.log4j.Log4j2;
-
-@Log4j2
 @Service
 public class UpstoxFeedServiceImpl {
 
 	@Autowired
 	private FeedService feedService;
+	
+	private static final Logger log = LoggerFactory.getLogger(UpstoxFeedServiceImpl.class);
+
 
 	public boolean subscribeToTicker(String tickerName,String exchange, String feedType) {
 

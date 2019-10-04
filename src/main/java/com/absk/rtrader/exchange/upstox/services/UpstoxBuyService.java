@@ -3,22 +3,21 @@ package com.absk.rtrader.exchange.upstox.services;
 import java.math.BigDecimal;
 import java.util.concurrent.CompletableFuture;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import com.absk.rtrader.core.controller.TickerController;
 import com.absk.rtrader.core.utils.ConfigUtil;
-import com.absk.rtrader.exchange.upstox.constants.UpstoxFeedTypeConstants;
 import com.absk.rtrader.exchange.upstox.constants.UpstoxTransactionTypeConstants;
 import com.github.rishabh9.riko.upstox.common.models.UpstoxResponse;
 import com.github.rishabh9.riko.upstox.orders.OrderService;
 import com.github.rishabh9.riko.upstox.orders.models.Order;
 import com.github.rishabh9.riko.upstox.orders.models.OrderRequest;
 
-import lombok.extern.log4j.Log4j2;
-
 @Service
-@Log4j2
 public class UpstoxBuyService {
 
 	@Autowired
@@ -30,6 +29,8 @@ public class UpstoxBuyService {
 	@Autowired
 	ConfigUtil config;
 	
+	private static final Logger log = LoggerFactory.getLogger(UpstoxBuyService.class);
+
 	
 		
 	@Async("AsyncTaskExecuter")

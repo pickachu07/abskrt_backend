@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,15 +26,13 @@ import com.github.rishabh9.riko.upstox.login.LoginService;
 import com.github.rishabh9.riko.upstox.login.models.AccessToken;
 import com.github.rishabh9.riko.upstox.login.models.TokenRequest;
 
-import lombok.extern.log4j.Log4j2;
-@Log4j2
 @RestController
 public class UpstoxAuthController {
 
 	@Autowired
 	private Cache cache;
 	
-	
+	private static final Logger log = LoggerFactory.getLogger(UpstoxAuthController.class);
 	/*@Autowired
 	AccessTokenRepository atr;
 	*/
@@ -101,7 +101,7 @@ public class UpstoxAuthController {
 	            cache.updateAccessToken(accessToken);
 	            //atr.save(accessToken);
 	        } catch (ExecutionException | InterruptedException e) {
-	            log.fatal("Error obtaining access token", e);
+	            log.error("Error obtaining access token", e);
 	            throw e;
 	        }
 	        

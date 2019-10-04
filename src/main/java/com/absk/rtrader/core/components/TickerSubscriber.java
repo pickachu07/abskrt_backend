@@ -3,13 +3,17 @@ package com.absk.rtrader.core.components;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 
+import org.slf4j.LoggerFactory;
+
 import com.absk.rtrader.core.models.Ticker;
+import org.slf4j.Logger;
 
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+
 public class TickerSubscriber implements Subscriber<Ticker>{
 
+	private static final Logger log = LoggerFactory.getLogger(TickerSubscriber.class);
+	
 	private Subscription tickerSubscription;
 	
 	/*

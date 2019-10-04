@@ -1,16 +1,17 @@
 package com.absk.rtrader.exchange.upstox.services;
 
 
-import com.github.rishabh9.riko.upstox.websockets.WebSocketService;
-import com.github.rishabh9.riko.upstox.websockets.models.WrappedWebSocket;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
-@Log4j2
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.github.rishabh9.riko.upstox.websockets.WebSocketService;
+import com.github.rishabh9.riko.upstox.websockets.models.WrappedWebSocket;
+
 @Service
 public class UpstoxWebSocketService {
 
@@ -21,6 +22,9 @@ public class UpstoxWebSocketService {
 
     @Autowired
     private UpstoxWebSocketSubscriber upstoxWebSocketSubscriber;
+    
+	private static final Logger log = LoggerFactory.getLogger(UpstoxWebSocketService.class);
+
 
     public void connect() throws Exception {
         log.info("Connecting to web-socket...");

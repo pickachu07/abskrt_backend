@@ -3,14 +3,15 @@ package com.absk.rtrader.exchange.upstox.services;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.absk.rtrader.core.interfaces.TickerDataListner;
 import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.exchange.upstox.constants.UpstoxFeedTypeConstants;
 import com.absk.rtrader.exchange.upstox.utils.UpstoxTickerUtils;
 
-import lombok.extern.log4j.Log4j2;
 
-@Log4j2
 public class UpstoxSLAgent implements TickerDataListner {
 	String tickerName;
 	String exchange;
@@ -20,6 +21,9 @@ public class UpstoxSLAgent implements TickerDataListner {
 	String id;
 	
 	UpstoxSLService SLServiceSupervisor;
+	
+	private static final Logger log = LoggerFactory.getLogger(UpstoxSLAgent.class);
+
 	
 	public UpstoxSLService getSLServiceSupervisor() {
 		return SLServiceSupervisor;

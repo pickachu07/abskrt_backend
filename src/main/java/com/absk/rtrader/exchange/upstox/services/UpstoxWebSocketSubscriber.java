@@ -4,16 +4,20 @@ package com.absk.rtrader.exchange.upstox.services;
 import java.util.ArrayList;
 import java.util.concurrent.Flow;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
+import com.absk.rtrader.core.controller.TickerController;
 import com.absk.rtrader.core.indicators.NRenko;
 import com.absk.rtrader.core.interfaces.TickerDataListner;
 import com.absk.rtrader.core.models.Ticker;
 import com.absk.rtrader.core.repositories.TickerRepository;
+import com.absk.rtrader.core.services.TimeframeTransformationService;
 import com.absk.rtrader.core.services.TradingSession;
 import com.absk.rtrader.core.utils.ConfigUtil;
 import com.absk.rtrader.core.utils.TickerUtil;
@@ -29,12 +33,12 @@ import com.github.rishabh9.riko.upstox.websockets.messages.ErrorMessage;
 import com.github.rishabh9.riko.upstox.websockets.messages.TextMessage;
 import com.github.rishabh9.riko.upstox.websockets.messages.WebSocketMessage;
 
-import lombok.extern.log4j.Log4j2;
 
-@Log4j2
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class UpstoxWebSocketSubscriber implements MessageSubscriber {
+
+	private static final Logger log = LoggerFactory.getLogger(UpstoxWebSocketSubscriber.class);
 
     private Flow.Subscription subscription;
     
@@ -53,8 +57,12 @@ public class UpstoxWebSocketSubscriber implements MessageSubscriber {
     @Autowired
     private SimpMessagingTemplate webSocketTemplate;
     
+    @Autowired
+    private TimeframeTransformationService tss;
+    
 	
-	  @Autowired private TickerRepository tickerRepo;
+	@Autowired 
+	private TickerRepository tickerRepo;
 	 
     @Autowired
     UpstoxSLService slService;
@@ -95,32 +103,35 @@ public class UpstoxWebSocketSubscriber implements MessageSubscriber {
             
             
             if(tick != null) {
-            	tickerRepo.save(tick);
-            	double currentClose = tick.getData().getClose();
-                renko.setBrickSize(tradingSession.getBrickSize());
-                renko.doNext(currentClose);
-                
-                tickArr = tickerUtil.renkoPricesToTickerArray(renko.getRenkoPrices(),UpstoxExchangeTypeConstants.NSE_INDEX,tradingSession.getTickerName());
-                
-                
-                
-                //send ohlc to ohlc_stream
-                webSocketTemplate.convertAndSend("/topic/ohlc_stream", tick);
-                
-                ArrayList<Ticker> newBricks = getNewBricks(tickArr);
-                
-                if(newBricks != null && newBricks.size() > 0) {
-                	
-                	tradingSession.processData(newBricks);
-                	
-                	//send renko brick to /topic/renko_stream
-                    for(int i=0;i<newBricks.size();i++){
-                        //log.info("The tick is now {}", tick);
-                        webSocketTemplate.convertAndSend("/topic/ticker_stream", newBricks.get(i));
+            	//transform tick to candle
+            	Ticker transformedTick =  tss.transform(tick);
+            	
+            	if(transformedTick != null) {
+            	 	
+            		tickerRepo.save(transformedTick);
+                	double currentClose = transformedTick.getData().getClose();
+                    renko.setBrickSize(tradingSession.getBrickSize());
+                    renko.doNext(currentClose);
+                    
+                    tickArr = tickerUtil.renkoPricesToTickerArray(renko.getRenkoPrices(),UpstoxExchangeTypeConstants.NSE_INDEX,tradingSession.getTickerName());
+                    
+                    //send ohlc to ohlc_stream
+                    webSocketTemplate.convertAndSend("/topic/ohlc_stream", transformedTick);
+                    
+                    ArrayList<Ticker> newBricks = getNewBricks(tickArr);
+                    
+                    if(newBricks != null && newBricks.size() > 0) {
+                    	
+                    	tradingSession.processData(newBricks);
+                    	
+                    	//send renko brick to /topic/renko_stream
+                        for(int i=0;i<newBricks.size();i++){
+                            //log.info("The tick is now {}", tick);
+                            webSocketTemplate.convertAndSend("/topic/ticker_stream", newBricks.get(i));
+                        }
+                        lastRenkoArrayLength = tickArr.size();
                     }
-                    lastRenkoArrayLength = tickArr.size();
-                }
-                
+            	}     
             }
             
             for(TickerDataListner listner : Listners) {
@@ -138,7 +149,7 @@ public class UpstoxWebSocketSubscriber implements MessageSubscriber {
             log.info("Disconnected from Upstox:  Code: {}, Reason: {}", message.getCode(), message.getReason());
         } else if (item instanceof ClosingMessage) {
             final ClosingMessage message = (ClosingMessage) item;
-            log.warn("Closing the web-socket connection:  Code: {}, Reason: {}", message.getCode(), message.getReason());
+            log.info("Closing the web-socket connection:  Code: {}, Reason: {}", message.getCode(), message.getReason());
         } else if (item instanceof ErrorMessage) {
             final ErrorMessage message = (ErrorMessage) item;
             // Reusing the 'onError()'
@@ -167,12 +178,12 @@ public class UpstoxWebSocketSubscriber implements MessageSubscriber {
     }
     
     public void onError(final Throwable throwable) {
-        log.fatal("Error occurred: {}", throwable);
+    	log.error("Error occurred: {}", throwable);
     }
 
  
     public void onComplete() {
-        log.info("Subscription is now complete - no more messages from Upstox.");
+    	log.info("Subscription is now complete - no more messages from Upstox.");
     }
 
   

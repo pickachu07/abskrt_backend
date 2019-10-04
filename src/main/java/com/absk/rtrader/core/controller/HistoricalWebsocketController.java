@@ -11,6 +11,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import com.absk.rtrader.core.components.TickerSubscriber;
 import com.absk.rtrader.core.indicators.NRenko;
 import com.absk.rtrader.core.models.HistoricalStreamingSettings;
 import com.absk.rtrader.core.models.Notification;

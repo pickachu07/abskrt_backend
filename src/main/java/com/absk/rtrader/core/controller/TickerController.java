@@ -2,6 +2,8 @@ package com.absk.rtrader.core.controller;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,12 +21,11 @@ import com.absk.rtrader.exchange.upstox.constants.UpstoxSymbolNames;
 import com.absk.rtrader.exchange.upstox.services.UpstoxFeedServiceImpl;
 import com.absk.rtrader.exchange.upstox.services.UpstoxWebSocketService;
 
-import lombok.extern.log4j.Log4j2;
 
-@Log4j2
 @RestController
 public class TickerController {
 
+	private static final Logger log = LoggerFactory.getLogger(TickerController.class);
 	@Autowired
 	private TradingSession tradingSession;
 	
@@ -71,16 +72,20 @@ public class TickerController {
 	
 
 	@CrossOrigin(origins = CoreConstants.FRONTEND_BASE_URI)
-	@GetMapping("/subscribe/{tickerName}/{brickSize}")
-	public boolean subscribe(@PathVariable String tickerName, @PathVariable String brickSize) {
+	@GetMapping("/subscribe/{tickerName}/{brickSize}/{timeframe}")
+	public boolean subscribe(@PathVariable String tickerName, @PathVariable String brickSize, @PathVariable String timeframe) {
 		
-		log.debug("Subscribed with Ticker name:"+tickerName+" and brickSize: "+brickSize);
+		log.debug("Subscribed with Ticker name:"+tickerName+" and brickSize: "+brickSize+", timeframe: "+1);
 		//validate brickSize to be int
 		int bs = Integer.parseInt(brickSize); 
 		if (bs>50) return false;
 		//TODO: validate ticker Name
 		
-		instantiateTradingSession(tickerName,bs);
+		//validate brickSize to be int
+		int tf = Integer.parseInt(timeframe); 
+		if (tf<1) return false;
+		
+		instantiateTradingSession(tickerName,bs,tf);
 		return upstoxFeedService.subscribeToTicker(tickerName,UpstoxExchangeTypeConstants.NSE_INDEX, UpstoxFeedTypeConstants.FEEDTYPE_FULL);
 	}
 
@@ -111,13 +116,15 @@ public class TickerController {
 		return new ModelAndView("redirect:" + CoreConstants.FRONTEND_BASE_URI);
 	}
 
-	 private void instantiateTradingSession(String tickerName,float brickSize) {
+	 private void instantiateTradingSession(String tickerName,float brickSize,int timeframe) {
 		log.debug("Instantiated trading sessions with TickerName:"+tickerName+" BrickSize: "+brickSize);
 		tradingSession.setBrickSize(brickSize);
+		tradingSession.setTimeFrame(timeframe);
 		tradingSession.setSessionType(1);
 		tradingSession.setTickerName(tickerName);
 		tradingSession.instantiateSLAgents();
 		tradingSession.setRenkoBrickSize(brickSize);
+		
 	}
 	
 	

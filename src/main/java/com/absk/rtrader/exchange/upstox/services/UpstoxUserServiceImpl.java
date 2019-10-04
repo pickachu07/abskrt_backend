@@ -3,6 +3,8 @@ package com.absk.rtrader.exchange.upstox.services;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,14 +12,14 @@ import com.github.rishabh9.riko.upstox.common.models.UpstoxResponse;
 import com.github.rishabh9.riko.upstox.users.UserService;
 import com.github.rishabh9.riko.upstox.users.models.Position;
 
-import lombok.extern.log4j.Log4j2;
-
 @Service
-@Log4j2
 public class UpstoxUserServiceImpl {
 	
 	@Autowired
 	UserService userService;
+	
+	private static final Logger log = LoggerFactory.getLogger(UpstoxUserServiceImpl.class);
+
 
 	public List<Position> getPositions() {
 

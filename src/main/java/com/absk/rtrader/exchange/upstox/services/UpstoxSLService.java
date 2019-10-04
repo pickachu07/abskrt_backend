@@ -3,6 +3,8 @@ package com.absk.rtrader.exchange.upstox.services;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -11,10 +13,7 @@ import org.springframework.stereotype.Service;
 import com.absk.rtrader.core.utils.ConfigUtil;
 import com.absk.rtrader.exchange.upstox.constants.UpstoxFeedTypeConstants;
 
-import lombok.extern.log4j.Log4j2;
 
-
-@Log4j2
 @Service
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class UpstoxSLService {
@@ -30,6 +29,9 @@ public class UpstoxSLService {
 	
 	@Autowired
 	UpstoxFeedServiceImpl feedService;
+	
+	private static final Logger log = LoggerFactory.getLogger(UpstoxSLService.class);
+
 	
 	UpstoxSLService(){
 		//log: service instantiated

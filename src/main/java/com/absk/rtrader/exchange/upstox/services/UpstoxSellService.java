@@ -3,6 +3,8 @@ package com.absk.rtrader.exchange.upstox.services;
 import java.math.BigDecimal;
 import java.util.concurrent.CompletableFuture;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -15,9 +17,7 @@ import com.github.rishabh9.riko.upstox.orders.OrderService;
 import com.github.rishabh9.riko.upstox.orders.models.Order;
 import com.github.rishabh9.riko.upstox.orders.models.OrderRequest;
 
-import lombok.extern.log4j.Log4j2;
 
-@Log4j2
 @Service
 public class UpstoxSellService {
 
@@ -29,6 +29,8 @@ public class UpstoxSellService {
 	
 	@Autowired
 	ConfigUtil config;
+	
+	private static final Logger log = LoggerFactory.getLogger(UpstoxSellService.class);
 	
 
 	@Async("AsyncTaskExecuter")
