@@ -67,7 +67,6 @@ public class UpstoxHistoricalDataController {
 		//TradingSession ts = new TradingSession();
 		//ts.processAllData(data,4);//TODO: add brick size and ticker as params
 		//TimeframeTransformationService tss = new TimeframeTransformationService();
-		tss.setSourceTimeframe(60);
 		tss.setDestinationTimeframe(600);
 		for(int i=0;i<data.length;i++){
 			Ticker tick = tss.transform(util.convertToTicker(data[i]));

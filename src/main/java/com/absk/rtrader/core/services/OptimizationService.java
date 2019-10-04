@@ -60,7 +60,7 @@ public class OptimizationService {
 		TradingSession session = null;
 		for(long currentTimeframe=this.timeframeStart;currentTimeframe<=this.timeframeEnd;currentTimeframe=(currentTimeframe + this.timeframeIncrement)) {
 			
-			TimeframeTransformationService tss = new TimeframeTransformationService(this.timeframeStart,currentTimeframe,this.tickerName);
+			TimeframeTransformationService tss = new TimeframeTransformationService(this.timeframeStart);
 			List<Ticker> transformedData = tss.transform(data);
 			
 			for(long currentBrickSize = this.brick_size_start; currentBrickSize < brick_size_end;currentBrickSize+=this.brick_size_incriment) {
