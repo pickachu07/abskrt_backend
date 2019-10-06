@@ -63,6 +63,7 @@ public class UpstoxAccessTokenManagementService {
             accessToken.setType(TOKEN_TYPE);
             accessToken.setExpiresIn(TOKEN_EXPIRY);
             accessToken.setToken(token);
+            cache.updateAccessToken(accessToken);
 			return token;
 		}
 		

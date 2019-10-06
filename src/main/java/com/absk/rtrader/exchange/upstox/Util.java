@@ -2,6 +2,7 @@ package com.absk.rtrader.exchange.upstox;
 
 
 import org.apache.tomcat.util.codec.binary.Base64;
+import static com.absk.rtrader.exchange.upstox.constants.RikoConstants.TOKEN_TYPE;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -25,6 +26,7 @@ import com.absk.rtrader.core.utils.TickerUtil;
 import com.absk.rtrader.exchange.upstox.constants.UpstoxExchangeTypeConstants;
 import com.absk.rtrader.exchange.upstox.constants.UpstoxSymbolNames;
 import com.absk.rtrader.exchange.upstox.models.HistoricalAPIResponse;
+import com.absk.rtrader.exchange.upstox.services.UpstoxAccessTokenManagementService;
 import com.absk.rtrader.exchange.upstox.utils.Cache;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -47,6 +49,9 @@ public class Util {
 	
 	@Autowired
 	RestTemplateBuilder restTemplateBuilder;
+	
+	@Autowired
+	UpstoxAccessTokenManagementService tokenManagementService;
 	
 	private static final Logger log = LoggerFactory.getLogger(Util.class);
 
@@ -102,8 +107,10 @@ public class Util {
 		Gson gson = new Gson();
 		JsonElement element = gson.fromJson (response.getBody(), JsonElement.class);
 		JsonObject jsonObj = element.getAsJsonObject();
-		System.out.println("Acess token response: "+jsonObj.get("access_token"));
-        return jsonObj.get("access_token").getAsString();
+		String token = jsonObj.get("access_token").getAsString();
+		System.out.println("Acess token response: "+token);
+		tokenManagementService.storeAccessToken(token, TOKEN_TYPE);
+        return token;
 	}
 	 
 	

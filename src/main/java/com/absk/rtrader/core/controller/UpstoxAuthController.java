@@ -33,9 +33,7 @@ public class UpstoxAuthController {
 	private Cache cache;
 	
 	private static final Logger log = LoggerFactory.getLogger(UpstoxAuthController.class);
-	/*@Autowired
-	AccessTokenRepository atr;
-	*/
+	
 	@Autowired
 	Util upstoxUtil;
 	
@@ -82,9 +80,10 @@ public class UpstoxAuthController {
 		HashMap<String, String> authData = new HashMap<String, String>();
 		authData.put("client_id", configUtil.getApiKey());
 		authData.put("client_secret", configUtil.getApiSecret());
-		authData.put("access_token", upstoxUtil.getCurrentAccessToken());
-		//String isValid = Boolean.toString(upstoxUtil.isAccessTokenValid());
-		//authData.put("is_token_valid", isValid);
+		//authData.put("access_token", upstoxUtil.getCurrentAccessToken());
+		authData.put("access_token", tokenManagementService.getValidAccessToken());
+		//String isValid = Boolean.toString(tokenManagementService.isAuthenticated());
+		authData.put("is_token_valid", "true");
 		return authData;
 		
 	}
@@ -98,7 +97,8 @@ public class UpstoxAuthController {
 	        try {
 	            final AccessToken accessToken = loginService.getAccessToken(tokenRequest).get();
 	            // Save 'accessToken' into a database or cache
-	            cache.updateAccessToken(accessToken);
+	            accessToken.setExpiresIn(System.currentTimeMillis()+86400000);
+	            tokenManagementService.storeAccessToken(accessToken);
 	            //atr.save(accessToken);
 	        } catch (ExecutionException | InterruptedException e) {
 	            log.error("Error obtaining access token", e);
