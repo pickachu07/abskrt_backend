@@ -17,7 +17,12 @@ import org.springframework.stereotype.Component;
 import com.absk.rtrader.core.indicators.NRenko;
 import com.absk.rtrader.core.models.OHLC;
 import com.absk.rtrader.core.models.Ticker;
+import com.absk.rtrader.core.utils.ConfigUtil;
 import com.absk.rtrader.core.utils.TickerUtil;
+import com.absk.rtrader.exchange.upstox.constants.UpstoxExchangeTypeConstants;
+import com.absk.rtrader.exchange.upstox.constants.UpstoxStrikeTypeConstants;
+import com.absk.rtrader.exchange.upstox.services.UpstoxFeedServiceImpl;
+import com.absk.rtrader.exchange.upstox.services.UpstoxSLAgent;
 import com.absk.rtrader.exchange.upstox.services.UpstoxSLService;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
@@ -41,7 +46,15 @@ public class TradingSession {
     @Autowired
     private TimeframeTransformationService tss;
     
+    @Autowired
+    private ConfigUtil configUtil;
+    
+    @Autowired
+    private UpstoxFeedServiceImpl feedService;
+    
+    
     String tickerName;
+    String exchange;
     int sessionType;//0 -->realtime 1 --> optimization TODO: change to enum
     int timeFrame;//no of ticks per candle 
     float brickSize;
@@ -53,6 +66,7 @@ public class TradingSession {
     int buffer_signal_type;
     int lastCalculatedTrade;
     double tempProfit;
+    int ignoreSignalCount;
     
     
     public int getTimeFrame() {
@@ -75,6 +89,24 @@ public class TradingSession {
         this.tempProfit = 0.0;
         this.timeFrame = 1;
     }
+	
+	public TradingSession(String tickerName,String exchange,int ignoreSignalCount, int sessionType,float brickSize) {
+        this.tickerName = tickerName;
+        this.sessionType = sessionType;
+        this.brickSize = brickSize;
+        this.orderCount = 0;
+        orders = HashBasedTable.create();
+        rb = new ArrayList<Ticker>();
+        this.last_signal_type = -1;
+        this.buffer_signal_type = -1;
+        this.lastCalculatedTrade =0;
+        this.tempProfit = 0.0;
+        this.timeFrame = 1;
+        this.exchange = exchange;
+        this.ignoreSignalCount = ignoreSignalCount;
+    }
+	
+	
     public TradingSession(){
         this.brickSize = 10;//make it configurable
         this.orderCount = 0;
@@ -89,15 +121,58 @@ public class TradingSession {
     
    
     void registerBuyOpt(double price,Date date) {
-        orderCount++;
+    	//if orderCount < ignore signal count 
+    	if(orderCount <= this.ignoreSignalCount) {
+    		log.info("BUY SIGNAL IGNORED! Current Signal Count: "+orderCount);
+    		
+    	}
+    	orderCount++;
         DateFormat dateFormat = new SimpleDateFormat("dd-MM-YYYY hh:mm:ss");
         orders.put("Buy at "+dateFormat.format(date), orderCount,new BigDecimal(price));
+        if(!configUtil.isTradingEnabled()) { //if trading disabled --> paper trading enabled
+        	if(slService.isAnyAgentFree()) {
+        		
+        		UpstoxSLAgent slAgent = slService.getFreeAgent();
+        		String strikeSymbol = tickerUtil.getClosestStrikePrice(price, 100, UpstoxStrikeTypeConstants.CALL);
+        		log.info("SL Agent free. Executing Paper trade to buy CALL :"+strikeSymbol);
+        		BigDecimal initPriceBD = feedService.getLTPofInstrument(strikeSymbol, UpstoxExchangeTypeConstants.NSE_FUTURE_AND_OPTIONS);
+        		slAgent.setParams(strikeSymbol, UpstoxExchangeTypeConstants.NSE_FUTURE_AND_OPTIONS, initPriceBD, 10);
+        		slAgent.start();
+        	}else {
+        		log.info(" No SL Agent free. Ignoring BUY signal at :"+price);
+        		
+        	}
+        }else {
+        	//real trade
+        }
     }
     
     void registerSellOpt(double price,Date date) {
-        orderCount++;
+        
+    	//ignore signal
+    	if(orderCount <= this.ignoreSignalCount) {
+    		log.info("SELL SIGNAL IGNORED! Current Signal Count: "+orderCount);
+    		
+    	}
+    	
+    	orderCount++;
         DateFormat dateFormat = new SimpleDateFormat("dd-MM-YYYY hh:mm:ss");
         orders.put("Sell at "+dateFormat.format(date), orderCount, new BigDecimal(price));
+        if(!configUtil.isTradingEnabled()) { //if trading disabled --> paper trading enabled
+        	if(slService.isAnyAgentFree()) {
+        		
+        		UpstoxSLAgent slAgent = slService.getFreeAgent();
+        		String strikeSymbol = tickerUtil.getClosestStrikePrice(price, 100, UpstoxStrikeTypeConstants.PUT);
+        		log.info("SL Agent free. Executing Paper trade to buy PUT :"+strikeSymbol);
+        		BigDecimal initPriceBD = feedService.getLTPofInstrument(strikeSymbol, UpstoxExchangeTypeConstants.NSE_FUTURE_AND_OPTIONS);
+        		slAgent.setParams(strikeSymbol, UpstoxExchangeTypeConstants.NSE_FUTURE_AND_OPTIONS, initPriceBD, 10);
+        		slAgent.start();
+        	}else{
+        		log.info(" No SL Agent free. Ignoring SELL signal at :"+price);
+        	}
+        }else {
+        	//real trade
+        }
     }
     
     double getProfit() {
@@ -123,12 +198,14 @@ public class TradingSession {
         
     }
     
-    public void processData(ArrayList<Ticker> ohlc) {
+    public void processData(ArrayList<Ticker> ohlc) {//TODO: change this to ticker
         int brickCount =  ohlc.size();
         if(ohlc.size()<1)return;
-        for(int i=0;i<brickCount;i++) {
-            //System.out.println("BrickCount:"+i+"Close: "+ohlc.get(i).getData().getClose());
-        }
+		/*
+		 * for(int i=0;i<brickCount;i++) {
+		 * //System.out.println("BrickCount:"+i+"Close: "+ohlc.get(i).getData().getClose
+		 * ()); }
+		 */
         int current_signal_type = getBrickType(ohlc.get(0));//1 --> positive brick 0 --> negetive brick
         if(brickCount ==1) {
             if(current_signal_type == 1) {//positive brick
@@ -136,8 +213,8 @@ public class TradingSession {
                     if(this.last_signal_type != 1) { //last signal not buy(1) --> last signal sell(0) or null(-1)
                         //buy Signal
                         registerBuyOpt(ohlc.get(brickCount-1).getData().getClose(),new Date(ohlc.get(brickCount-1).getData().getTimestamp()));
-                        System.out.println("Signal:Buy :: last signal is not buy at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+":: Single Brick generated"+brickCount +" at price:"+ohlc.get(brickCount-1).getData().getClose());
-                        log.info("Signal:Buy :: last signal is not buy at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+":: Single Brick generated"+brickCount +" at price:"+ohlc.get(brickCount-1).getData().getClose());
+                        System.out.println("Signal:Buy :: at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+":: Single Brick generated"+brickCount +" at price:"+ohlc.get(brickCount-1).getData().getClose());
+                        log.info("Signal:Buy :: at"+new Date(ohlc.get(brickCount-1).getData().getTimestamp())+":: Single Brick generated"+brickCount +" at price:"+ohlc.get(brickCount-1).getData().getClose());
                         this.last_signal_type = 1;//set last signal as sell(0)        
                     }    
                     this.buffer_signal_type = -1;//reset buffer
@@ -162,8 +239,10 @@ public class TradingSession {
             }
         }//end of brick count 1
         if(brickCount >1) {
+        	//fetch last brick type
+        	current_signal_type = getBrickType(ohlc.get(brickCount-1));//1 --> positive brick 0 --> negetive brick
             
-            if(current_signal_type == 1) {//current is positive brick
+        	if(current_signal_type == 1) {//current is positive brick
                 if(this.last_signal_type != 1) { //last signal not buy(1) --> last signal sell(0) or null(-1)
                     //Buy Signal
                     registerBuyOpt(ohlc.get(brickCount-1).getData().getClose(),new Date(ohlc.get(brickCount-1).getData().getTimestamp()));
@@ -186,6 +265,18 @@ public class TradingSession {
         }
         //no brick do nothing        
     }
+    
+    public void ExecuteAlternate(ArrayList<Ticker> ohlc) {
+    	 int brickCount =  ohlc.size();
+         if(brickCount < 1 )return;
+         
+         int current_signal_type = getBrickType(ohlc.get(0));//1 --> positive brick 0 --> negetive brick
+         
+         
+    }
+    
+    
+    
     private int getBrickType(Ticker brick) {
         //return 1 for positive brick -1 for negetive
         if(brick.getData().getClose() > brick.getData().getOpen())return 1;
