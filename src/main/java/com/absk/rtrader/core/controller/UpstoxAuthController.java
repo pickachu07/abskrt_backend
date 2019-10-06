@@ -47,24 +47,26 @@ public class UpstoxAuthController {
 	private UpstoxAccessTokenManagementService tokenManagementService;
 	
 	
-	
+	@CrossOrigin(origins = FRONTEND_BASE_URI)
 	@GetMapping("/gettoken")
 	public String getToken() {
 		return tokenManagementService.getValidAccessToken();
 	}
 	
+	@CrossOrigin(origins = FRONTEND_BASE_URI)
 	@GetMapping("/isAuthenticated")
 	public boolean validAccessTokenPresent() {
 		return tokenManagementService.isAuthenticated();
 	}
 
-	
+	@CrossOrigin(origins = FRONTEND_BASE_URI)
 	@GetMapping("/auth")
     public ModelAndView saveApiCode(@RequestParam("code") String code) {
 		final String redirURL = configUtil.getFrontendUrl();
 		
 		return new ModelAndView("redirect:" + redirURL);
     }
+	
 	
 	@CrossOrigin(origins = FRONTEND_BASE_URI)
 	@GetMapping("/initauth")
