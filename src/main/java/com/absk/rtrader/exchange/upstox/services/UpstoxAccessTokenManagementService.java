@@ -39,6 +39,8 @@ public class UpstoxAccessTokenManagementService {
 		if(cache.getAccessToken().isPresent()) {
 			String token = cache.getAccessToken().get().getToken();
 			if(!token.equalsIgnoreCase(TOKEN))return true;
+		}else {
+			if(getValidAccessToken().length() > 5)return true;
 		}
 		return false;
 	}
