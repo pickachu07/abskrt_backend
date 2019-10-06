@@ -23,6 +23,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/gs-guide-websocket").setAllowedOrigins(CoreConstants.FRONTEND_BASE_URI).withSockJS();
         registry.addEndpoint("/historical").setAllowedOrigins(CoreConstants.FRONTEND_BASE_URI);
         registry.addEndpoint("/get-auth-data").setAllowedOrigins(CoreConstants.FRONTEND_BASE_URI);
+        registry.addEndpoint("/notifications").setAllowedOrigins(CoreConstants.FRONTEND_BASE_URI);
         
     }
 
