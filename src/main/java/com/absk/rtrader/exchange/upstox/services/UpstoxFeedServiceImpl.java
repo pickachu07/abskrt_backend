@@ -1,5 +1,6 @@
 package com.absk.rtrader.exchange.upstox.services;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.absk.rtrader.exchange.upstox.constants.UpstoxFeedTypeConstants;
 import com.github.rishabh9.riko.upstox.common.models.UpstoxResponse;
 import com.github.rishabh9.riko.upstox.feed.FeedService;
+import com.github.rishabh9.riko.upstox.feed.models.Feed;
 import com.github.rishabh9.riko.upstox.feed.models.Subscription;
 import com.github.rishabh9.riko.upstox.feed.models.SubscriptionResponse;
 import com.github.rishabh9.riko.upstox.feed.models.SymbolSubscribed;
@@ -37,8 +39,8 @@ public class UpstoxFeedServiceImpl {
 			return false;
 		}
 	}
-	
-	
+
+
 	public SubscriptionResponse subscribeToTickerGetDetail(String tickerName,String exchange, String feedType) {
 
 		// TODO: create utils to fetch feedtype and exchange type
@@ -61,6 +63,17 @@ public class UpstoxFeedServiceImpl {
 		try {
 			log.info("Getting detail of unSubscribing to Ticker:data "+future.get().getData().toString());
 			return future.get().getData();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public BigDecimal getLTPofInstrument(String symbol,String exchange) {
+		CompletableFuture<UpstoxResponse<Feed>> future = feedService.liveFeed(exchange, symbol, UpstoxFeedTypeConstants.FEEDTYPE_LTP);
+		try {
+			log.info("Getting LTP for instrument: "+symbol);
+			return future.get().getData().getLtp();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
