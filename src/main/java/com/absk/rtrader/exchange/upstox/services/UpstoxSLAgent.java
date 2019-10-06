@@ -13,10 +13,11 @@ import com.absk.rtrader.exchange.upstox.utils.UpstoxTickerUtils;
 
 
 public class UpstoxSLAgent implements TickerDataListner {
-	String tickerName;
+	private String tickerName;
 	String exchange;
 	BigDecimal initialPrice;
-	int stopLoss;
+	double stopLossPrice;
+	int stopLossPercent;
 	boolean isActive;
 	String id;
 	
@@ -52,7 +53,8 @@ public class UpstoxSLAgent implements TickerDataListner {
 	public String setParams(String ticker,String exchange, BigDecimal initialPrice, int stopLossPercent) {
 		this.tickerName = ticker;
 		this.initialPrice = initialPrice;
-		this.stopLoss = stopLossPercent;
+		this.stopLossPercent = stopLossPercent;
+		this.stopLossPrice = Math.ceil(initialPrice.doubleValue() - (initialPrice.doubleValue()*stopLossPercent));
 		this.exchange = exchange;
 		return getId();
 	}
@@ -60,7 +62,7 @@ public class UpstoxSLAgent implements TickerDataListner {
 
 
 	public String getExchange() {
-		return exchange;
+		return this.exchange;
 	}
 
 	public void setExchange(String exchange) {
@@ -74,7 +76,7 @@ public class UpstoxSLAgent implements TickerDataListner {
 
 
 	public BigDecimal getInitialPrice() {
-		return initialPrice;
+		return this.initialPrice;
 	}
 
 
@@ -86,13 +88,13 @@ public class UpstoxSLAgent implements TickerDataListner {
 
 
 	public int getStopLoss() {
-		return stopLoss;
+		return this.stopLossPercent;
 	}
 
 
 
 	public void setStopLoss(int stopLoss) {
-		this.stopLoss = stopLoss;
+		this.stopLossPercent = stopLoss;
 	}
 
 
@@ -124,21 +126,21 @@ public class UpstoxSLAgent implements TickerDataListner {
 		}
 		log.info("SL Agent: "+getId()+"Ticker received: "+tick.toString());
 		//sl business logic
-		int buyPrice = initialPrice.intValue();
-		int currPrice = (int)tick.getData().getClose();
-		if(currPrice <= buyPrice) {
+		double currPrice = tick.getData().getClose();
+		if(currPrice <= this.stopLossPrice) {
 			//sell instantly
 			log.info("SL Agent: Sell trigerred on stoploss at price:"+tick.getData().getClose());
 			//stop subscribing the symbol
-			this.SLServiceSupervisor.subscribeToTicker(this.tickerName, this.exchange, UpstoxFeedTypeConstants.FEEDTYPE_FULL);
+			this.SLServiceSupervisor.unsubscribeToTicker(this.tickerName, this.exchange, UpstoxFeedTypeConstants.FEEDTYPE_FULL);
+			this.resetAgent();
 		}
-		if(currPrice > buyPrice) {
+		if(currPrice > initialPrice.doubleValue()) {
 			//increment stoploss
-			this.stopLoss += (currPrice-buyPrice);
-			log.info("SL AGENT:: SL incremented by"+(currPrice-buyPrice)+" Symbol "+this.tickerName);
+			this.stopLossPrice += (currPrice-initialPrice.doubleValue());
+			log.info("SL AGENT:: SL incremented by"+ (currPrice-initialPrice.doubleValue())+" Symbol "+this.tickerName);
 		}
 		
-		log.info("SL Agent: "+getId()+"Ticker received: "+tick.toString());
+		log.info("SL Agent: "+getId()+"Ticker received: "+tick.toString());//change to debug log
 	}
 	
 	//start()
@@ -155,11 +157,14 @@ public class UpstoxSLAgent implements TickerDataListner {
 	}
 	
 	public String resetAgent() {
+		log.info("SL Agent: "+getId()+"Resetting.");//change to debug log
 		this.tickerName = "";
 		this.initialPrice = null;
-		this.stopLoss = 0;
+		this.stopLossPercent = 0;
+		this.stopLossPrice = 0D;
 		this.isActive = false;
 		this.exchange = "";
+		
 		return this.id;
 	}
 
