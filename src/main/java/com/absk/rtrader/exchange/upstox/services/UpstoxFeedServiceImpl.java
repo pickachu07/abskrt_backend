@@ -72,7 +72,7 @@ public class UpstoxFeedServiceImpl {
 	public BigDecimal getLTPofInstrument(String symbol,String exchange) {
 		CompletableFuture<UpstoxResponse<Feed>> future = feedService.liveFeed(exchange, symbol, UpstoxFeedTypeConstants.FEEDTYPE_LTP);
 		try {
-			log.info("Getting LTP for instrument: "+symbol);
+			log.info("Getting LTP for instrument: "+symbol+"LTP: "+future.get().getData().getLtp());
 			return future.get().getData().getLtp();
 		} catch (Exception e) {
 			e.printStackTrace();
