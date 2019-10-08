@@ -2,6 +2,9 @@ package com.absk.rtrader.exchange.upstox.services;
 
 
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Flow;
 
 import org.slf4j.Logger;
@@ -12,7 +15,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
-import com.absk.rtrader.core.controller.TickerController;
 import com.absk.rtrader.core.indicators.NRenko;
 import com.absk.rtrader.core.interfaces.TickerDataListner;
 import com.absk.rtrader.core.models.Ticker;
@@ -42,7 +44,7 @@ public class UpstoxWebSocketSubscriber implements MessageSubscriber {
 
     private Flow.Subscription subscription;
     
-    private ArrayList<UpstoxSLAgent> Listners;
+    private CopyOnWriteArrayList<UpstoxSLAgent> Listners;
     
     @Autowired
     private TradingSession tradingSession;
@@ -80,23 +82,44 @@ public class UpstoxWebSocketSubscriber implements MessageSubscriber {
         this.subscription.request(1);
         //instantiateTradingSession(UpstoxSymbolNames.BANK_NIFTY, 4.0F);//Default
         slService.instantiateAgents();
-        Listners = new ArrayList<UpstoxSLAgent>();
+        Listners = new CopyOnWriteArrayList<UpstoxSLAgent>();
         lastRenkoArrayLength = 0;
     }
     
     public void subscribeListner(UpstoxSLAgent agent) {
-    	if(Listners.size() >= config.getSLAgentPoolSize()) {
+    	if(Listners.size() > config.getSLAgentPoolSize()) {
     		//something wrong as number of listners cannot be more than no of agents in pool
+    		log.error("Listner list size is greater than SL Agent pool size.");
     		return;
     	}
     	Listners.add(agent);
+    }
+    
+    public void unsubscribeListner(UpstoxSLAgent agent) {
+    	String id = agent.getId();
+    	Iterator<UpstoxSLAgent> iter = Listners.iterator();
+    	ArrayList<UpstoxSLAgent> temp = new ArrayList<UpstoxSLAgent>();
+    	while (iter.hasNext()) {
+    	    UpstoxSLAgent agnt = iter.next();
+
+    	    if (agnt.getId().equalsIgnoreCase(id))
+    	    	
+    	        temp.add(agnt);
+    		}
+    	if(!temp.isEmpty()) {
+    		Listners.removeAll(temp);
+    		log.info("Removing Agent: "+id+"from Listner list.");
+    	}else {
+    		log.error("Agent: "+id+"not found in Listner list.");
+    	}
+    	
     }
 
     public void onNext(WebSocketMessage item) {
         if (item instanceof BinaryMessage) {
             
             String itemAsString = ((BinaryMessage) item).getMessageAsString();
-            log.info("Binary Message: {}", itemAsString);
+            log.debug("Binary Message: {}", itemAsString);
             
             UpstoxTickerUtils utils = new UpstoxTickerUtils();
             Ticker tick = utils.filterTickerBySymbol(itemAsString, tradingSession.getTickerName());
@@ -133,12 +156,18 @@ public class UpstoxWebSocketSubscriber implements MessageSubscriber {
                     }
             	}     
             }
-            
-            for(TickerDataListner listner : Listners) {
-            	log.info("Adding data to agent:"+listner.getId());//convert to debug
-            	listner.onNext(itemAsString);
+            for(Iterator<UpstoxSLAgent> itr = Listners.iterator(); itr.hasNext();){
+            	
+            	try {
+            		UpstoxSLAgent listner = itr.next();
+                	log.info("Adding data to agent:"+listner.getId());//convert to debug
+                	listner.onNext(itemAsString);
+            	}catch(ConcurrentModificationException e) {
+            		log.error("Comodification error"+e.getMessage());//convert to debug
+            	}
+      	
             }
-            
+              
             tickArr = null;
             
         } else if (item instanceof ConnectedMessage) {

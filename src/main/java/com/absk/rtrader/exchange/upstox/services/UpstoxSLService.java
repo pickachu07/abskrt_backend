@@ -47,9 +47,11 @@ public class UpstoxSLService {
 		this.agentPool = new ArrayList<UpstoxSLAgent>();
 		log.info("Instantiating Stop Loss agents. PoolSize: "+poolSize);
 		for(int count=0;count<poolSize;count++) {
-			UpstoxSLAgent agent = new UpstoxSLAgent(this);
+			String agentType = (count%2==0 ? "CALL" : "PUT");
+			UpstoxSLAgent agent = new UpstoxSLAgent(this,agentType);
 			agent.setSLServiceSupervisor(this);
 			agentPool.add(agent);
+			
 		}
 	}
 	
@@ -76,6 +78,27 @@ public class UpstoxSLService {
 		return false;
 	}
 	
+	public UpstoxSLAgent getFreeAgent(String agentType) {
+		for(UpstoxSLAgent agent : agentPool ) {
+			if(!agent.isActive()&& agent.getAgentType().equalsIgnoreCase(agentType)) {
+				log.info("Free agent found of type: "+agentType);
+				return agent;}
+		}
+		return null;
+	}
+	
+	public boolean isAnyAgentFree(String agentType) {
+		for(UpstoxSLAgent agent : agentPool ) {
+			if(!agent.isActive() && agent.getAgentType().equalsIgnoreCase(agentType)) {
+				log.info("Free agent found of type: "+agentType);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
+	
 	//start agent(ticker,price,stoploss)
 	public boolean startAgent(String ticker,String exchange,BigDecimal price,int stopLoss) {
 		UpstoxSLAgent agent = getFreeAgent();
@@ -98,6 +121,13 @@ public class UpstoxSLService {
 		upstoxWebSocketSubscriber.subscribeListner(getAgent(agentId));
 		
 	}
+	
+	//deregister agent to Upstox Web Socket subscriber
+		public void unsubscribeAgentFromTickerStream(String agentId){
+			log.info("Subcribing to ticker Stream: Agent ID: "+agentId);
+			upstoxWebSocketSubscriber.unsubscribeListner(getAgent(agentId));
+			
+		}
 	
 	
 	public boolean subscribeToTicker(String tickerName,String exchange, String feedType) {
