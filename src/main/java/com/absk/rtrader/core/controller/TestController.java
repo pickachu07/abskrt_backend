@@ -20,6 +20,7 @@ import com.absk.rtrader.exchange.upstox.constants.UpstoxFeedTypeConstants;
 import com.absk.rtrader.exchange.upstox.constants.UpstoxOrderTypeConstants;
 import com.absk.rtrader.exchange.upstox.constants.UpstoxProductTypeConstants;
 import com.absk.rtrader.exchange.upstox.services.UpstoxBuyService;
+import com.absk.rtrader.exchange.upstox.services.UpstoxFeedServiceImpl;
 import com.absk.rtrader.exchange.upstox.services.UpstoxSLService;
 import com.absk.rtrader.exchange.upstox.services.UpstoxSellService;
 import com.absk.rtrader.exchange.upstox.services.UpstoxUserServiceImpl;
@@ -46,7 +47,10 @@ public class TestController {
 	
 	@Autowired
 	TickerRepository tickerRepo;
-		
+	
+	@Autowired	
+	UpstoxFeedServiceImpl feedService;
+	
 	@Autowired
 	UpstoxUserServiceImpl userService;
 	
@@ -137,7 +141,12 @@ public class TestController {
 	}
 	
 	
+	@GetMapping("/testinstrument/{tickerName}/{exchange}")
+	public String testInstr(@PathVariable String tickerName,@PathVariable String exchange) {
 	
+		return feedService.getLTPofInstrument(tickerName, exchange).toString();
+	
+	}
 	
 	
 	
