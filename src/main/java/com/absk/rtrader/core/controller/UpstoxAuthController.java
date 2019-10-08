@@ -100,6 +100,7 @@ public class UpstoxAuthController {
 	            final AccessToken accessToken = loginService.getAccessToken(tokenRequest).get();
 	            // Save 'accessToken' into a database or cache
 	            accessToken.setExpiresIn(System.currentTimeMillis()+86400000);
+	            cache.updateAccessToken(accessToken);
 	            tokenManagementService.storeAccessToken(accessToken);
 	            //atr.save(accessToken);
 	        } catch (ExecutionException | InterruptedException e) {
