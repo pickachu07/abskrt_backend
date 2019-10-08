@@ -14,12 +14,14 @@ import com.absk.rtrader.exchange.upstox.utils.UpstoxTickerUtils;
 
 public class UpstoxSLAgent implements TickerDataListner {
 	private String tickerName;
-	String exchange;
-	BigDecimal initialPrice;
-	double stopLossPrice;
-	int stopLossPercent;
-	boolean isActive;
-	String id;
+	private String agentType;
+	private String exchange;
+	private BigDecimal initialPrice;
+	private double stopLossPrice;
+	private int stopLossPercent;
+	private boolean isActive;
+	private String id;
+	private double bufferPrice;
 	
 	UpstoxSLService SLServiceSupervisor;
 	
@@ -36,12 +38,14 @@ public class UpstoxSLAgent implements TickerDataListner {
 
 	
 	
-	public UpstoxSLAgent(UpstoxSLService slService){
+	public UpstoxSLAgent(UpstoxSLService slService,String type){
 	//assign random id
 		this.id = UUID.randomUUID().toString();
-		System.out.println("SL Agent id: "+this.id);
+		System.out.println("SL Agent created. Id: "+this.id+", Agent Type: "+type);
 		isActive = false;
 		setSLServiceSupervisor(slService);
+		this.agentType = type;
+		this.bufferPrice = 0D;
 	 }
 	
 	public String getTicker() {
@@ -50,16 +54,37 @@ public class UpstoxSLAgent implements TickerDataListner {
 
 
 
-	public String setParams(String ticker,String exchange, BigDecimal initialPrice, int stopLossPercent) {
+	public String setParams(String ticker,String exchange, BigDecimal initialPrice, int stopLoss) {
 		this.tickerName = ticker;
 		this.initialPrice = initialPrice;
-		this.stopLossPercent = stopLossPercent;
-		this.stopLossPrice = Math.ceil(initialPrice.doubleValue() - (initialPrice.doubleValue()*stopLossPercent));
+		this.stopLossPercent = stopLoss;
+		this.stopLossPrice = initialPrice.doubleValue() - stopLossPercent;
 		this.exchange = exchange;
+		this.bufferPrice = this.initialPrice.doubleValue();//check overflow
 		return getId();
 	}
 
+	public String setParams(String ticker,String exchange, BigDecimal initialPrice, int stopLoss,String agentType) {
+		this.tickerName = ticker;
+		this.initialPrice = initialPrice;
+		this.stopLossPercent = stopLoss;
+		this.stopLossPrice = initialPrice.doubleValue() - stopLossPercent;
+		this.exchange = exchange;
+		this.agentType = agentType;
+		this.bufferPrice = this.initialPrice.doubleValue();//check overflow
+		return getId();
+	}
 
+	
+
+
+	public String getAgentType() {
+		return agentType;
+	}
+
+	public void setAgentType(String agentType) {
+		this.agentType = agentType;
+	}
 
 	public String getExchange() {
 		return this.exchange;
@@ -83,6 +108,7 @@ public class UpstoxSLAgent implements TickerDataListner {
 
 	public void setInitialPrice(BigDecimal initialPrice) {
 		this.initialPrice = initialPrice;
+		this.bufferPrice = this.initialPrice.doubleValue();//check overflow
 	}
 
 
@@ -129,15 +155,17 @@ public class UpstoxSLAgent implements TickerDataListner {
 		double currPrice = tick.getData().getClose();
 		if(currPrice <= this.stopLossPrice) {
 			//sell instantly
-			log.info("SL Agent: Sell trigerred on stoploss at price:"+tick.getData().getClose());
+			log.info("SL Agent:"+getId()+" Sell trigerred on stoploss at price:"+tick.getData().getClose()+" for symbol: "+this.tickerName);
 			//stop subscribing the symbol
+			this.SLServiceSupervisor.unsubscribeAgentFromTickerStream(getId());
 			this.SLServiceSupervisor.unsubscribeToTicker(this.tickerName, this.exchange, UpstoxFeedTypeConstants.FEEDTYPE_FULL);
 			this.resetAgent();
 		}
-		if(currPrice > initialPrice.doubleValue()) {
+		if(initialPrice != null && currPrice > this.bufferPrice) {
 			//increment stoploss
-			this.stopLossPrice += (currPrice-initialPrice.doubleValue());
-			log.info("SL AGENT:: SL incremented by"+ (currPrice-initialPrice.doubleValue())+" Symbol "+this.tickerName);
+			this.stopLossPrice += (currPrice-this.bufferPrice);
+			this.bufferPrice = currPrice;
+			log.info("SL AGENT:: SL incremented by"+ (currPrice-this.bufferPrice)+" Symbol "+this.tickerName);
 		}
 		
 		log.info("SL Agent: "+getId()+"Ticker received: "+tick.toString());//change to debug log
@@ -147,6 +175,7 @@ public class UpstoxSLAgent implements TickerDataListner {
 	public boolean start() {
 		subscribe();
 		isActive = true;
+		log.info("SL Agent: "+getId()+"Starting for symbol: "+this.tickerName+" at price: "+this.initialPrice);
 		return true;	
 	}
 	
